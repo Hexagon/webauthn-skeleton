@@ -1,0 +1,38 @@
+{
+  "name": "webauthn-skeleton",
+  "version": "0.0.9",
+  "description": "Skeleton for a Node.js powered Web Authentication API enabled website",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/hexagon/webauthn-skeleton.git"
+  },
+  "keywords": [
+    "webauthn",
+    "fido2",
+    "security key",
+    "u2f",
+    "yubikey",
+    "hello",
+    "windows hello",
+    "passwordless"
+  ],
+  "author": "Hexagon <hexagon@56k.guru>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/hexagon/webauthn-skeleton/issues"
+  },
+  "homepage": "https://github.com/hexagon/webauthn-skeleton#readme",
+  "dependencies": {
+    "@hexagon/base64-arraybuffer": "^2.0.1",
+    "@qix/base64url-arraybuffer": "^1.0.0",
+    "body-parser": "^1.15.2",
+    "cookie-parser": "^1.4.3",
+    "cookie-session": "^1.4.0",
+    "express": "^4.15.4",
+    "fido2-lib": "^2.6.8"
+  }
+}

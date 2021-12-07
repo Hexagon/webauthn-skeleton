@@ -1,0 +1,6 @@
+{
+    "port": 3000,
+    "origin": "https://localhost:3000",
+    "rpId": "localhost",
+    "rpName": "Webauthn Skeleton"
+}

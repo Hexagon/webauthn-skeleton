@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title></title>
+    <link rel="stylesheet" href="css/milligram.min.css">
+    <style>
+        html, body, .container, .row {
+            height: 100%;
+        }
+
+        .formcontainer {
+            background: #f0f0f0;
+            padding: 15px;
+        }
+
+        .formcontainer form, .formcontainer fieldset{
+            margin:0;
+        }
+
+        .secretcontainer {
+            background: #f0f0f0;
+            padding: 15px;
+        }
+
+        #registerContainer, #mainContainer {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="row row-center">
+
+            <div class="column" id="registerContainer">
+                <div class="formcontainer register">
+                    <h3>Register page</h3>
+                    <form id="register">
+                      <fieldset>
+                        <label for="name">name</label>
+                        <input type="text" name="name">
+                        <label for="username">username</label>
+                        <input type="text" name="username">
+                        <input class="button-primary" type="submit" value="Register">
+                      </fieldset>
+                    </form>
+
+                    <a href="#" id="toLogin">Already registered? Login page</a>
+                </div>
+            </div>
+
+            <div class="column" id="loginContainer">
+                <div class="formcontainer login">
+                    <h3>Login page</h3>
+                    <form id="login">
+                      <fieldset>
+                        <label for="nameField">username</label>
+                        <input type="text" name="username">
+                        <input class="button-primary" type="submit" value="Login">
+                      </fieldset>
+                    </form>
+
+                    <a href="#" id="toRegistration">Not registered yet? Registration</a>
+                </div>
+            </div>
+
+            <div class="column" id="mainContainer">
+
+                <div class="secretcontainer">
+                    <h3>Hey <span id="name"></span>!</h3>
+                    <button id="logoutButton">Logout</button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@hexagon/base64-arraybuffer@2.0.2/dist/base64-arraybuffer.umd.min.js"></script>
+    <script src="js/utils.js"></script>
+    <script src="js/view.js"></script>
+    <script src="js/password.auth.js"></script>
+    <script src="js/webauthn.auth.js"></script>
+    <script>
+        $(document).ready(() => {
+            checkIfLoggedIn()
+            .then((response) => {
+                if(response)
+                    return loadMainContainer()
+            })
+        })
+    </script>
+</body>
+</html>
