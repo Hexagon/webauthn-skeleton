@@ -1,6 +1,6 @@
 # webauthn-skeleton
 
-This is a working demo/skeleton of a Node.js/Express application with passworless login (WebAuthN/FIDO2).
+This is a working demo/skeleton of a Node.js/Express application with passwordless login (WebAuthN/FIDO2).
 
 Supports authentication with Windows Hello, Yubikey or Android lockscreen (i think), more to come.
 
@@ -19,6 +19,8 @@ First clone this repo, then:
 ```npm install```
 
 ### 2. Generate self signed certificate and keys (webauthn requires HTTPS)
+
+**I repeat, you need to generate keys, certificate and serve using https for webauthn to work**
 
 ```
 cd keys
