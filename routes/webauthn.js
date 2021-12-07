@@ -1,6 +1,6 @@
 const express   = require('express');
 const Fido2     = require('../utils/fido2');
-const config    = require('../config.json');
+const config    = require('../config');
 const crypto    = require('crypto');
 const router    = express.Router();
 const database  = require('./db');
@@ -129,8 +129,6 @@ router.post('/response', async (request, response) => {
             counter: result.authnrData.get("counter"),
         };
 
-        console.log('Successful registration, user authorized with token', token);
-
         database[request.session.username].authenticators.push(token);
         database[request.session.username].registered = true
         
@@ -169,7 +167,7 @@ router.post('/response', async (request, response) => {
                 break;
         
             } catch (e) {
-                console.log(e);
+
             }
         }
         // authentication complete!

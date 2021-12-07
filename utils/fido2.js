@@ -4,13 +4,10 @@ const base64url = require("@hexagon/base64-arraybuffer");
 
 class Fido2 {
     constructor(rpId, rpName, rpIcon) {
-        // could also use one or more of the options below,
-        // which just makes the options calls easier later on:
         this.f2l = new Fido2Lib({
-            timeout: 60000,
+            timeout: 90000,
             rpId,
             rpName,
-            //rpIcon: "https://example.com/logo.png",
             challengeSize: 128,
             attestation: "none",
             cryptoParams: [-7, -257],
@@ -44,11 +41,7 @@ class Fido2 {
             factor: "either"
         };
         var regResult = await this.f2l.attestationResult(clientAttestationResponse, attestationExpectations); // will throw on error
-
-        // registration complete!
-        // save publicKey and counter from regResult to user's info for future authentication calls
         return regResult;
-
     }
 
     async login(username) {
