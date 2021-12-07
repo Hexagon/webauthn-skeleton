@@ -12,7 +12,13 @@ Note: This is a _heavily_ modified and improved version of [github.com/fido-alli
 
 ## Getting it running
 
-### 1. Generate self signed certificate and keys (webauthn requires HTTPS)
+First clone this repo, then:
+
+### 1. Install dependencies
+
+```npm install```
+
+### 2. Generate self signed certificate and keys (webauthn requires HTTPS)
 
 ```
 cd keys
@@ -27,10 +33,10 @@ rm csr.pem
 cd ..
 ```
 
-## 2. Start server 
+## 3. Start server 
 
 ```node app```
 
-## 3. Open browser
+## 4. Open browser
 
 ```https://localhost:3000```
