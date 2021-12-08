@@ -1,7 +1,7 @@
 'use strict';
 
 let getMakeCredentialsChallenge = (formBody) => {
-    return fetch('/webauthn/register', {
+    return fetch('webauthn/register', {
         method: 'POST',
         credentials: 'include',
         headers: {
@@ -19,7 +19,7 @@ let getMakeCredentialsChallenge = (formBody) => {
 }
 
 let sendWebAuthnResponse = (body) => {
-    return fetch('/webauthn/response', {
+    return fetch('webauthn/response', {
         method: 'POST',
         credentials: 'include',
         headers: {
@@ -80,7 +80,7 @@ $('#register').submit(function(event) {
 })
 
 let getGetAssertionChallenge = (formBody) => {
-    return fetch('/webauthn/login', {
+    return fetch('webauthn/login', {
         method: 'POST',
         credentials: 'include',
         headers: {

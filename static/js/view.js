@@ -17,7 +17,7 @@ $('#toRegistration').click(function(e) {
 })
 
 let loadMainContainer = () => {
-    return fetch('/personalInfo', {credentials: 'include'})
+    return fetch('personalInfo', {credentials: 'include'})
         .then((response) => response.json())
         .then((response) => {
             if(response.status === 'ok') {
@@ -33,7 +33,7 @@ let loadMainContainer = () => {
 }
 
 let checkIfLoggedIn = () => {
-    return fetch('/isLoggedIn', {credentials: 'include'})
+    return fetch('isLoggedIn', {credentials: 'include'})
         .then((response) => response.json())
         .then((response) => {
             if(response.status === 'ok') {
@@ -45,7 +45,7 @@ let checkIfLoggedIn = () => {
 }
 
 $('#logoutButton').click(() => {
-    fetch('/logout', {credentials: 'include'});
+    fetch('logout', {credentials: 'include'});
 
     $('#registerContainer').hide();
     $('#mainContainer').hide();
