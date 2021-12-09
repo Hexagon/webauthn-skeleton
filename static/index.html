@@ -2,83 +2,62 @@
 <html>
 <head>
     <title></title>
-    <link rel="stylesheet" href="css/milligram.min.css">
-    <style>
-        html, body, .container, .row {
-            height: 100%;
-        }
-
-        .formcontainer {
-            background: #f0f0f0;
-            padding: 15px;
-        }
-
-        .formcontainer form, .formcontainer fieldset{
-            margin:0;
-        }
-
-        .secretcontainer {
-            background: #f0f0f0;
-            padding: 15px;
-        }
-
-        #registerContainer, #mainContainer {
-            display: none;
-        }
-    </style>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/water.css@2/out/dark.css">
+    <link rel="stylesheet" href="css/demo.css">
 </head>
 <body>
-    <div class="container">
-        <div class="row row-center">
+    <div id="header">
+        <h1>Web Authentication API demo</h1>   
+    </div>
 
-            <div class="column" id="registerContainer">
-                <div class="formcontainer register">
-                    <h3>Register page</h3>
-                    <form id="register">
-                      <fieldset>
-                        <label for="name">name</label>
-                        <input type="text" name="name">
-                        <label for="username">username</label>
-                        <input type="text" name="username">
-                        <input class="button-primary" type="submit" value="Register">
-                      </fieldset>
-                    </form>
-
-                    <a href="#" id="toLogin">Already registered? Login page</a>
-                </div>
-            </div>
-
-            <div class="column" id="loginContainer">
-                <div class="formcontainer login">
-                    <h3>Login page</h3>
-                    <form id="login">
-                      <fieldset>
-                        <label for="nameField">username</label>
-                        <input type="text" name="username">
-                        <input class="button-primary" type="submit" value="Login">
-                      </fieldset>
-                    </form>
-
-                    <a href="#" id="toRegistration">Not registered yet? Registration</a>
-                </div>
-            </div>
-
-            <div class="column" id="mainContainer">
-
-                <div class="secretcontainer">
-                    <h3>Hey <span id="name"></span>!</h3>
-                    <button id="logoutButton">Logout</button>
-                </div>
-            </div>
-
+    <!-- View when logged out -->
+    <div id="registerContainer">
+        <div class="left-column fl pr-40">
+            <h3>What is Web Authentication API?</h3>
+            <blockquote>
+                The Web Authentication API (also known as WebAuthn) is a specification written by the W3C and FIDO, with the participation of Google, Mozilla, Microsoft, Yubico, and others. The API allows servers to register and authenticate users using public key cryptography instead of a password.
+                <p class="fr"><a href="https://webauthn.guide/">https://webauthn.guide</a></p>
+            </blockquote>
+            <h3>How do i try it?</h3>
+            <p>Register here by entering a username and clicking <i>Register</i>, the browser will then ask you for your public key credentials.</p>
+            <p>The following providers is currently working</p>
+                <ul>
+                    <li>Windows Hello</li>
+                    <li>Android Screen Lock</li>
+                    <li>A security key (for example a Yubikey with FIDO2 support).</li>
+                </ul>
+            </p>
+            <p>Nothing is stored, tbe backend only store users/credentials in memory.</p>
+            <h3>Where can I see the internals?</h3>
+            <p>
+                Source code available at <a href="https://github.com/hexagon/webauthn-skeleton">github.com/hexagon/webauthn-skeleton</a>
+            </p>
+        </div>
+        <div class="right-column fl">
+            <h2><i class="fas fa-user-ninja"></i>&nbsp;Enter username</h2>
+            <input type="text" class="full" id="username">
+            <button class="button-primary fl half" id="button-register">Register</button>
+            <button class="button-primary fl half" id="button-login">Login</button>
         </div>
     </div>
+
+    <!-- View when logged in -->
+    <div id="mainContainer">
+        <h3>Hey <span id="name"></span>!</h3>
+        <button id="logoutButton">Logout</button>
+    </div>
+
+    <!-- External dependencies -->
     <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@hexagon/base64-arraybuffer@2.0.2/dist/base64-arraybuffer.umd.min.js"></script>
+
+    <!-- Internals-->
     <script src="js/utils.js"></script>
     <script src="js/view.js"></script>
-    <script src="js/password.auth.js"></script>
     <script src="js/webauthn.auth.js"></script>
+
+    <!-- Check if already logged in -->
     <script>
         $(document).ready(() => {
             checkIfLoggedIn()
@@ -88,5 +67,6 @@
             })
         })
     </script>
+
 </body>
 </html>

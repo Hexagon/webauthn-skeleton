@@ -36,49 +36,6 @@ let sendWebAuthnResponse = (body) => {
     })
 }
 
-/* Handle for register form submission */
-$('#register').submit(function(event) {
-    event.preventDefault();
-
-    let username = this.username.value;
-    let name     = this.name.value;
-
-    if(!username || !name) {
-        alert('Name or username is missing!')
-        return
-    }
-
-    getMakeCredentialsChallenge({username, name})
-        .then((response) => {
-            console.log('oh',response.user.id);
-            let publicKey = preformatMakeCredReq(response);
-            console.log('oh2',base64.encode(response.user.id,true));
-            return navigator.credentials.create({ publicKey });
-        })
-        .then((response) => {
-            console.log(response);
-            let makeCredResponse = {
-                id: response.id,
-                rawId: base64.encode(response.rawId,true),
-                response: {
-                    attestationObject: base64.encode(response.response.attestationObject,true),
-                    clientDataJSON: base64.encode(response.response.clientDataJSON,true)
-                },
-                type: response.type
-            };
-            console.log(makeCredResponse, response);
-            return sendWebAuthnResponse(makeCredResponse)
-        })
-        .then((response) => {
-            if(response.status === 'ok') {
-                loadMainContainer()   
-            } else {
-                alert(`Server responed with error. The message is: ${response.message}`);
-            }
-        })
-        .catch((error) => alert(error))
-})
-
 let getGetAssertionChallenge = (formBody) => {
     return fetch('webauthn/login', {
         method: 'POST',
@@ -97,17 +54,40 @@ let getGetAssertionChallenge = (formBody) => {
     })
 }
 
+/* Handle for register form submission */
+function register (username) {
+    
+    let name = username;
+
+    getMakeCredentialsChallenge({username, name})
+        .then((response) => {
+            let publicKey = preformatMakeCredReq(response);
+            return navigator.credentials.create({ publicKey });
+        })
+        .then((response) => {
+            let makeCredResponse = {
+                id: response.id,
+                rawId: base64.encode(response.rawId,true),
+                response: {
+                    attestationObject: base64.encode(response.response.attestationObject,true),
+                    clientDataJSON: base64.encode(response.response.clientDataJSON,true)
+                },
+                type: response.type
+            };
+            return sendWebAuthnResponse(makeCredResponse)
+        })
+        .then((response) => {
+            if(response.status === 'ok') {
+                loadMainContainer()   
+            } else {
+                alert(`Server responed with error. The message is: ${response.message}`);
+            }
+        })
+        .catch((error) => alert(error))
+}
+
 /* Handle for login form submission */
-$('#login').submit(function(event) {
-    event.preventDefault();
-
-    let username = this.username.value;
-
-    if(!username) {
-        alert('Username is missing!')
-        return
-    }
-
+function login(username) {
     getGetAssertionChallenge({username})
         .then((response) => {
             let publicKey = preformatGetAssertReq(response);
@@ -125,4 +105,28 @@ $('#login').submit(function(event) {
             }
         })
         .catch((error) => alert(error))
-})
+}
+
+/* Handle for register form submission */
+function submit(action) {
+    event.preventDefault();
+
+    let username = $('#username')[0].value;
+    
+    if(!username) {
+        alert('Username is missing!')
+        return
+    }
+
+    if (action === "register") {
+        register(username);
+    } else {
+        login(username);
+    }
+}
+$('#button-register').click(() => {   
+    submit("register");
+});
+$('#button-login').click(() => {   
+    submit("login");
+});

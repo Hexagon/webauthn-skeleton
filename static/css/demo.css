@@ -1,0 +1,24 @@
+#mainContainer {
+    display: none;
+}
+.left-column {
+    width: 60%;
+}
+.right-column {
+    width: 34%;
+}
+.fl {
+    float: left;
+}
+.fr {
+    float: right;
+}
+.pr-40 {
+    padding-right:40px;
+}
+.full {
+    width: 88%;
+}
+.half {
+    width: 46%;
+}

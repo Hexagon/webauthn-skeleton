@@ -1,30 +1,11 @@
-/**
- * Switch to login page
- */
-$('#toLogin').click(function(e) {
-    e.preventDefault();
-    $('#registerContainer').hide();
-    $('#loginContainer').show();
-})
-
-/**
- * Switch to registration page
- */
-$('#toRegistration').click(function(e) {
-    e.preventDefault();
-    $('#loginContainer').hide();
-    $('#registerContainer').show();
-})
-
 let loadMainContainer = () => {
     return fetch('personalInfo', {credentials: 'include'})
         .then((response) => response.json())
         .then((response) => {
             if(response.status === 'ok') {
-                $('#theSecret').html(response.theSecret)
-                $('#name').html(response.name)
+                $('#name').text(response.name);
+
                 $('#registerContainer').hide();
-                $('#loginContainer').hide();
                 $('#mainContainer').show();
             } else {
                 alert(`Error! ${response.message}`)
@@ -47,7 +28,6 @@ let checkIfLoggedIn = () => {
 $('#logoutButton').click(() => {
     fetch('logout', {credentials: 'include'});
 
-    $('#registerContainer').hide();
+    $('#registerContainer').show();
     $('#mainContainer').hide();
-    $('#loginContainer').show();
 })

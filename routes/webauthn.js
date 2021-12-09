@@ -30,8 +30,8 @@ router.post('/register', async (request, response) => {
         return
     }
 
-    let username = request.body.username;
-    let name     = request.body.name;
+    let username = request.body.username,
+        name     = username;
 
     if(database[username] && database[username].registered) {
         response.json({
@@ -43,6 +43,7 @@ router.post('/register', async (request, response) => {
     }
 
     let id = randomBase64URLBuffer();
+
     database[username] = {
         'name': name,
         'registered': false,
@@ -131,8 +132,11 @@ router.post('/response', async (request, response) => {
 
         database[request.session.username].authenticators.push(token);
         database[request.session.username].registered = true
-        
-        return response.json({ 'status': 'ok' })
+
+        request.session.loggedIn = true;
+
+        return response.json({ 'status': 'ok' });
+
 
     } else if(webauthnResp.response.authenticatorData !== undefined) {
         /* This is get assertion */
@@ -171,7 +175,7 @@ router.post('/response', async (request, response) => {
             }
         }
         // authentication complete!
-        if (winningAuthenticator) {
+        if (winningAuthenticator && database[request.session.username].registered ) {
             request.session.loggedIn = true;
             return response.json({ 'status': 'ok' });
 
