@@ -17,8 +17,29 @@
     padding-right:40px;
 }
 .full {
-    width: 88%;
+    width: 87%;
 }
 .half {
     width: 46%;
 }
+
+@media (max-width:850px) {
+    .left-column {
+        width: 90%;
+    }
+    .right-column {
+        width: 90%;
+    }
+    .fl {
+        float: none;
+    }
+    .fr {
+        float: none;
+    }
+    .full {
+        width: 47%;
+    }
+    .half {
+        width: 50%;
+    }
+ }
