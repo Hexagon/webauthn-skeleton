@@ -1,14 +1,12 @@
 # webauthn-skeleton
 
-This is a working skeleton of a Node.js/Express application with passwordless login (WebAuthN/FIDO2).
+This is a working skeleton of a Node.js/Express application with passwordless login (Web Authentication API, WebAuthN, FIDO2).
 
 Live at [https://56k.guru/webauthn](https://56k.guru/webauthn)
 
-Supports authentication with Windows Hello, Yubikey or Android lockscreen (i think), more to come.
+Tested with Windows Hello, Yubikey or Android lockscreen, more to come.
 
-Using express and fido2-lib 
-
-Work in progress, but works!
+Using express and [fido2-lib](https://www.npmjs.com/package/fido2-lib)
 
 Note: This is a _heavily_ modified and improved version of [github.com/fido-alliance/webauthn-demo](https://github.com/fido-alliance/webauthn-demo)
 
