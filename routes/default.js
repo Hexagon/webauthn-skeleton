@@ -1,6 +1,7 @@
 const express  = require('express');
 const router   = express.Router();
 const database = require('./db');
+const token    = require('../utils/token');
 
 /* Returns if user is logged in */
 router.get('/isLoggedIn', (request, response) => {
@@ -36,7 +37,8 @@ router.get('/personalInfo', (request, response) => {
         response.json({
             'status': 'ok',
             'authenticators': database[request.session.username].authenticators,
-            'name': database[request.session.username].name
+            'name': database[request.session.username].name,
+            'oneTimeToken': database[request.session.username].oneTimeToken ? token.encode(database[request.session.username].oneTimeToken.token) : undefined
         })
     }
 })

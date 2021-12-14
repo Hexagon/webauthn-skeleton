@@ -7,6 +7,10 @@ let renderMainContainer = (response) => {
     $('#credential-table tbody').html('');
 
     // Fill credential table
+    if (response.oneTimeToken) {
+        let tokenUrl = "token/login/" + response.name + "/" + response.oneTimeToken;
+        $('#credential-table tbody').append("<tr><td><pre class\"pubkey\">N/A</pre></td><td><pre class=\"pubkey\">One time token <a href="+ tokenUrl + ">" + tokenUrl + "</a></pre></td></tr>");
+    }
     for(let authenticator of response.authenticators) {
         $('#credential-table tbody').append("<tr><td><pre class\"pubkey\">" + authenticator.counter + "</pre></td><td><pre class=\"pubkey\">" + authenticator.publicKey + "</pre></td></tr>");
     }
@@ -21,6 +25,19 @@ let loadMainContainer = () => {
         .then((response) => {
             if(response.status === 'ok') {
                 renderMainContainer(response);
+            } else {
+                alert(`Error! ${response.message}`)
+            }
+        })
+};
+
+let generateToken = () => {
+    return fetch('token/generate')
+        .then((response) => response.json())
+        .then((response) => {
+            if(response.status === 'ok') {
+                alert('New login token generated, this will be valid for 120 seconds.')
+                loadMainContainer();
             } else {
                 alert(`Error! ${response.message}`)
             }
@@ -67,4 +84,9 @@ $('#button-login').click(() => {
     } else {
         login(username);
     }
+});
+
+
+$('#button-generate-token').click(() => {   
+    generateToken();
 });

@@ -6,7 +6,8 @@ const crypto        = require('crypto');
 
 const config        = require('./config');
 const defaultroutes = require('./routes/default');
-const webuathnauth  = require('./routes/webauthn.js');
+const webuathnroutes  = require('./routes/webauthn');
+const tokenroutes   = require('./routes/token');
 
 const app           = express();
 
@@ -26,7 +27,8 @@ app.use(express.static(path.join(__dirname, 'static')));
 
 // Routes
 app.use('/', defaultroutes);
-app.use('/webauthn', webuathnauth);
+app.use('/webauthn', webuathnroutes);
+app.use('/token', tokenroutes);
 
 const port = config.port || 3000;
 

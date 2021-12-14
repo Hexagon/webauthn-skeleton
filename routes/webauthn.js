@@ -4,6 +4,7 @@ const config    = require('../config');
 const crypto    = require('crypto');
 const router    = express.Router();
 const database  = require('./db');
+const username  = require('../utils/username');
 
 const base64url = require("@hexagon/base64-arraybuffer");
 
@@ -30,10 +31,17 @@ router.post('/register', async (request, response) => {
         return
     }
 
-    let username = request.body.username,
-        name     = username;
+    let usernameClean = username.clean(request.body.username),
+        name     = usernameClean;
 
-    if(database[username] && database[username].registered) {
+    if (!usernameClean) {
+        response.json({
+            'status': 'failed',
+            'message': 'Invalid username!'
+        })
+    }
+
+    if(database[usernameClean] && database[usernameClean].registered) {
         response.json({
             'status': 'failed',
             'message': `Username ${username} already exists`
@@ -44,18 +52,19 @@ router.post('/register', async (request, response) => {
 
     let id = randomBase64URLBuffer();
 
-    database[username] = {
+    database[usernameClean] = {
         'name': name,
         'registered': false,
         'id': id,
-        'authenticators': []
+        'authenticators': [],
+        'onetimetoken': undefined
     }
 
-    let challengeMakeCred = await f2l.registration(username, name, id);
+    let challengeMakeCred = await f2l.registration(usernameClean, name, id);
     
     // Transfer challenge and username to session
     request.session.challenge = challengeMakeCred.challenge;
-    request.session.username  = username;
+    request.session.username  = usernameClean;
 
     // Respond with credentials
     response.json(challengeMakeCred);
@@ -81,11 +90,11 @@ router.post('/add', async (request, response) => {
         return
     }
 
-    let username = request.session.username,
-        name     = username,
+    let usernameClean = username.clean(request.session.username),
+        name     = usernameClean,
         id       = database[request.session.username].id;
 
-    let challengeMakeCred = await f2l.registration(username, name, id);
+    let challengeMakeCred = await f2l.registration(usernameClean, name, id);
     
     // Transfer challenge to session
     request.session.challenge = challengeMakeCred.challenge;
@@ -104,22 +113,22 @@ router.post('/login', async (request, response) => {
         return
     }
 
-    let username = request.body.username;
+    let usernameClean = username.clean(request.body.username);
 
-    if(!database[username] || !database[username].registered) {
+    if(!database[usernameClean] || !database[usernameClean].registered) {
         response.json({
             'status': 'failed',
-            'message': `User ${username} does not exist!`
+            'message': `User ${usernameClean} does not exist!`
         })
 
         return
     }
 
-    var assertionOptions = await f2l.login(username);
+    var assertionOptions = await f2l.login(usernameClean);
 
     // Transfer challenge and username to session
     request.session.challenge = assertionOptions.challenge;
-    request.session.username  = username;
+    request.session.username  = usernameClean;
 
     // Pass this, to limit selectable credentials for user... This may be set in response instead, so that
     // all of a users server (public) credentials isn't exposed to anyone
