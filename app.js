@@ -1,7 +1,6 @@
 const express       = require('express');
 const bodyParser    = require('body-parser');
 const cookieSession = require('cookie-session');
-const cookieParser  = require('cookie-parser');
 const path          = require('path');
 const crypto        = require('crypto');
 
@@ -20,8 +19,7 @@ app.use(cookieSession({
 
   // Cookie Options
   maxAge: 24 * 60 * 60 * 1000 // 24 hours
-}))
-app.use(cookieParser())
+}));
 
 // Static files (./static)
 app.use(express.static(path.join(__dirname, 'static')));

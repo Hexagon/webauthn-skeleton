@@ -1,5 +1,3 @@
-'use strict';
-
 let getMakeCredentialsChallenge = (formBody) => {
     return fetch('webauthn/register', {
         method: 'POST',
@@ -86,7 +84,7 @@ function register (username) {
         .catch((error) => alert(error))
 }
 
-/* Handle for login form submission */
+/* Handler for login form submission */
 function login(username) {
     getGetAssertionChallenge({username})
         .then((response) => {
@@ -106,27 +104,3 @@ function login(username) {
         })
         .catch((error) => alert(error))
 }
-
-/* Handle for register form submission */
-function submit(action) {
-    event.preventDefault();
-
-    let username = $('#username')[0].value;
-    
-    if(!username) {
-        alert('Username is missing!')
-        return
-    }
-
-    if (action === "register") {
-        register(username);
-    } else {
-        login(username);
-    }
-}
-$('#button-register').click(() => {   
-    submit("register");
-});
-$('#button-login').click(() => {   
-    submit("login");
-});

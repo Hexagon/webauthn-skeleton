@@ -31,3 +31,22 @@ $('#logoutButton').click(() => {
     $('#registerContainer').show();
     $('#mainContainer').hide();
 })
+
+
+$('#button-register').click(() => {
+    const username = $('#username')[0].value;
+    if(!username) {
+        alert('Username is missing!');
+    } else {
+        register(username);
+    }
+});
+
+$('#button-login').click(() => {   
+    const username = $('#username')[0].value;
+    if(!username) {
+        alert('Username is missing!');
+    } else {
+        login(username);
+    }
+});
