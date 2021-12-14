@@ -1,47 +1,37 @@
-const express       = require('express');
-const bodyParser    = require('body-parser');
-const cookieSession = require('cookie-session');
-const cookieParser  = require('cookie-parser');
-const path          = require('path');
-const crypto        = require('crypto');
-
-const config        = require('./config');
+const Koa = require('koa');
+const serve = require('koa-static');
+const bodyParser = require('koa-bodyparser');
+const session = require('koa-session');
+const path = require('path');
+const crypto = require('crypto');
+const config = require('./config');
 const defaultroutes = require('./routes/default');
-const webuathnauth  = require('./routes/webauthn.js');
+const webuathnauth = require('./routes/webauthn.js');
 
-const app           = express();
+const app = new Koa();
 
-app.use(bodyParser.json());
-
-// Sessions
-app.use(cookieSession({
-  name: 'session',
-  keys: [crypto.randomBytes(32).toString('hex')],
-
-  // Cookie Options
-  maxAge: 24 * 60 * 60 * 1000 // 24 hours
-}))
-app.use(cookieParser())
-
-// Static files (./static)
-app.use(express.static(path.join(__dirname, 'static')));
-
-// Routes
-app.use('/', defaultroutes);
-app.use('/webauthn', webuathnauth);
+app.use(serve(path.join(__dirname, 'static')));
+app.keys = [crypto.randomBytes(32).toString('hex')];
+app.use(session({}, app));
+app.use(bodyParser());
+//Routes
+app.use(defaultroutes.routes());
+app.use(defaultroutes.allowedMethods());
+app.use(webuathnauth.routes());
+app.use(webuathnauth.allowedMethods());
 
 const port = config.port || 3000;
 
 // Local development
-if (config.mode === "development") {
-  const https = require("https");
+if (config.mode === 'development') {
+  const https = require('https');
   const fs = require('fs');
-  var privateKey = fs.readFileSync('./keys/key.pem');
-  var certificate = fs.readFileSync('./keys/cert.pem');
+  const privateKey = fs.readFileSync('./keys/key.pem');
+  const certificate = fs.readFileSync('./keys/cert.pem');
   https.createServer({
     key: privateKey,
     cert: certificate
-  }, app).listen(port);  
+  }, app.callback()).listen(port);  
 
 // "Production" HTTP - (for use behind https proxy)
 } else {

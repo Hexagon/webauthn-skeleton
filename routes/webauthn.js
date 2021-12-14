@@ -1,11 +1,9 @@
-const express   = require('express');
+const router = require('@koa/router')({ prefix: '/webauthn' });
+const base64url = require('@hexagon/base64-arraybuffer');
 const Fido2     = require('../utils/fido2');
 const config    = require('../config');
 const crypto    = require('crypto');
-const router    = express.Router();
 const database  = require('./db');
-
-const base64url = require("@hexagon/base64-arraybuffer");
 
 let f2l = new Fido2(config.rpId, config.rpName, undefined);
 
@@ -14,32 +12,33 @@ let f2l = new Fido2(config.rpId, config.rpName, undefined);
  * @param  {Number} len - length of the buffer
  * @return {String}     - base64url random buffer
  */
- let randomBase64URLBuffer = (len) => {
+let randomBase64URLBuffer = (len) => {
     len = len || 32;
-    let buff = crypto.randomBytes(len);
+    let buff = crypto.randomBytes(len);    
     return base64url.encode(buff, true);
 }
 
-router.post('/register', async (request, response) => {
-    if(!request.body || !request.body.username || !request.body.name) {
-        response.json({
+router.post('/register', async (ctx, next) => {
+
+    if (!ctx.request.body || !ctx.request.body.username || !ctx.request.body.name) {
+        ctx.body = {
             'status': 'failed',
             'message': 'Request missing name or username field!'
-        })
+        }
 
-        return
+        return;
     }
 
-    let username = request.body.username,
-        name     = username;
+    let username = ctx.request.body.username,
+        name = username;
 
-    if(database[username] && database[username].registered) {
-        response.json({
+    if (database[username] && database[username].registered) {
+        ctx.body = {
             'status': 'failed',
             'message': `Username ${username} already exists`
-        })
+        }
 
-        return
+        return;
     }
 
     let id = randomBase64URLBuffer();
@@ -52,77 +51,78 @@ router.post('/register', async (request, response) => {
     }
 
     let challengeMakeCred = await f2l.registration(username, name, id);
-    
+
     // Transfer challenge and username to session
-    request.session.challenge = challengeMakeCred.challenge;
-    request.session.username  = username;
+    ctx.session.challenge = challengeMakeCred.challenge;
+    ctx.session.username = username;
 
     // Respond with credentials
-    response.json(challengeMakeCred);
-})
+    ctx.body = challengeMakeCred;
 
-router.post('/login', async (request, response) => {
-    if(!request.body || !request.body.username) {
-        response.json({
+});
+
+router.post('/login', async (ctx, next) => {
+    if (!ctx.request.body || !ctx.request.body.username) {
+        ctx.body = {
             'status': 'failed',
             'message': 'Request missing username field!'
-        })
+        }
 
-        return
+        return;
     }
 
-    let username = request.body.username;
+    let username = ctx.request.body.username;
 
-    if(!database[username] || !database[username].registered) {
-        response.json({
+    if (!database[username] || !database[username].registered) {
+        ctx.body = {
             'status': 'failed',
             'message': `User ${username} does not exist!`
-        })
+        }
 
-        return
+        return;
     }
 
     var assertionOptions = await f2l.login(username);
 
     // Transfer challenge and username to session
-    request.session.challenge = assertionOptions.challenge;
-    request.session.username  = username;
+    ctx.session.challenge = assertionOptions.challenge;
+    ctx.session.username = username;
 
     // Pass this, to limit selectable credentials for user... This may be set in response instead, so that
     // all of a users server (public) credentials isn't exposed to anyone
     let allowCredentials = [];
-    for(let authr of database[request.session.username].authenticators) {
+    for (let authr of database[ctx.session.username].authenticators) {
         allowCredentials.push({
-              type: 'public-key',
-              id: base64url.encode(authr.credId, true),
-              transports: ['usb', 'nfc', 'ble','internal']
-        })
+            type: 'public-key',
+            id: base64url.encode(authr.credId, true),
+            transports: ['usb', 'nfc', 'ble', 'internal']
+        });
     }
 
     assertionOptions.allowCredentials = allowCredentials;
 
-    request.session.allowCredentials = allowCredentials;
+    ctx.session.allowCredentials = allowCredentials;
 
-    response.json(assertionOptions);
-})
+    ctx.body = assertionOptions;
+});
 
-router.post('/response', async (request, response) => {
-    if(!request.body       || !request.body.id
-    || !request.body.rawId || !request.body.response
-    || !request.body.type  || request.body.type !== 'public-key' ) {
-        response.json({
+router.post('/response', async (ctx, next) => {
+    if (!ctx.request.body || !ctx.request.body.id
+        || !ctx.request.body.rawId || !ctx.request.body.response
+        || !ctx.request.body.type || ctx.request.body.type !== 'public-key') {
+            ctx.body = {
             'status': 'failed',
             'message': 'Response missing one or more of id/rawId/response/type fields, or type is not public-key!'
-        })
+        }
 
-        return
+        return;
     }
-    let webauthnResp = request.body;
-    if(webauthnResp.response.attestationObject !== undefined) {
+    let webauthnResp = ctx.request.body;
+    if (webauthnResp.response.attestationObject !== undefined) {
         /* This is create cred */
         webauthnResp.rawId = base64url.decode(webauthnResp.rawId, true);
         webauthnResp.response.attestationObject = base64url.decode(webauthnResp.response.attestationObject, true);
-        const result = await f2l.attestation(webauthnResp, config.origin, request.session.challenge);
+        const result = await f2l.attestation(webauthnResp, config.origin, ctx.session.challenge);
 
         const token = {
             credId: result.authnrData.get("credId"),
@@ -130,15 +130,15 @@ router.post('/response', async (request, response) => {
             counter: result.authnrData.get("counter"),
         };
 
-        database[request.session.username].authenticators.push(token);
-        database[request.session.username].registered = true
+        database[ctx.session.username].authenticators.push(token);
+        database[ctx.session.username].registered = true;
 
-        request.session.loggedIn = true;
+        ctx.session.loggedIn = true;
 
-        return response.json({ 'status': 'ok' });
+        return ctx.body = { 'status': 'ok' };
 
 
-    } else if(webauthnResp.response.authenticatorData !== undefined) {
+    } else if (webauthnResp.response.authenticatorData !== undefined) {
         /* This is get assertion */
         //result = utils.verifyAuthenticatorAssertionResponse(webauthnResp, database[request.session.username].authenticators);
         // add allowCredentials to limit the number of allowed credential for the authentication process. For further details refer to webauthn specs: (https://www.w3.org/TR/webauthn-2/#dom-publickeycredentialrequestoptions-allowcredentials).
@@ -147,16 +147,16 @@ router.post('/response', async (request, response) => {
         // get response back from client (clientAssertionResponse)
         webauthnResp.rawId = base64url.decode(webauthnResp.rawId, true);
         webauthnResp.response.userHandle = base64url.decode(webauthnResp.rawId, true);
-        let validAuthenticators = database[request.session.username].authenticators,
+        let validAuthenticators = database[ctx.session.username].authenticators,
             winningAuthenticator;
-        for(let authrIdx in validAuthenticators) {
+        for (let authrIdx in validAuthenticators) {
             let authr = validAuthenticators[authrIdx];
             try {
 
                 var assertionExpectations = {
                     // Remove the following comment if allowCredentials has been added into authnOptions so the credential received will be validate against allowCredentials array.
-                    allowCredentials: request.session.allowCredentials,
-                    challenge: request.session.challenge,
+                    allowCredentials: ctx.session.allowCredentials,
+                    challenge: ctx.session.challenge,
                     origin: config.origin,
                     factor: "either",
                     publicKey: authr.publicKey,
@@ -169,29 +169,29 @@ router.post('/response', async (request, response) => {
                 winningAuthenticator = result;
 
                 break;
-        
+
             } catch (e) {
 
             }
         }
         // authentication complete!
-        if (winningAuthenticator && database[request.session.username].registered ) {
-            request.session.loggedIn = true;
-            return response.json({ 'status': 'ok' });
+        if (winningAuthenticator && database[ctx.session.username].registered) {
+            ctx.session.loggedIn = true;
+            return ctx.body = { 'status': 'ok' };
 
-        // Authentication failed
+            // Authentication failed
         } else {
-            return response.json({
+            return ctx.body = {
                 'status': 'failed',
                 'message': 'Can not authenticate signature!'
-            });
+            };
         }
     } else {
-        return response.json({
+        return ctx.body = {
             'status': 'failed',
             'message': 'Can not authenticate signature!'
-        });
+        };
     }
-})
+});
 
 module.exports = router;
