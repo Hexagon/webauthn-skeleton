@@ -61,6 +61,39 @@ router.post('/register', async (request, response) => {
     response.json(challengeMakeCred);
 })
 
+
+router.post('/add', async (request, response) => {
+    if(!request.body) {
+        response.json({
+            'status': 'failed',
+            'message': 'Request missing name or username field!'
+        })
+
+        return
+    }
+
+    if(!request.session.loggedIn) {
+        response.json({
+            'status': 'failed',
+            'message': 'User not logged in!'
+        })
+
+        return
+    }
+
+    let username = request.session.username,
+        name     = username,
+        id       = database[request.session.username].id;
+
+    let challengeMakeCred = await f2l.registration(username, name, id);
+    
+    // Transfer challenge to session
+    request.session.challenge = challengeMakeCred.challenge;
+
+    // Respond with credentials
+    response.json(challengeMakeCred);
+})
+
 router.post('/login', async (request, response) => {
     if(!request.body || !request.body.username) {
         response.json({

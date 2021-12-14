@@ -35,6 +35,7 @@ router.get('/personalInfo', (request, response) => {
     } else {
         response.json({
             'status': 'ok',
+            'authenticators': database[request.session.username].authenticators,
             'name': database[request.session.username].name
         })
     }

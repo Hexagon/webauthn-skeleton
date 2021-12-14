@@ -1,5 +1,5 @@
-let getMakeCredentialsChallenge = (formBody) => {
-    return fetch('webauthn/register', {
+let getMakeCredentialsChallenge = (formBody, additional) => {
+    return fetch(additional ? 'webauthn/add' : 'webauthn/register', {
         method: 'POST',
         credentials: 'include',
         headers: {
@@ -53,11 +53,11 @@ let getGetAssertionChallenge = (formBody) => {
 }
 
 /* Handle for register form submission */
-function register (username) {
+function register (username, additional) {
     
     let name = username;
 
-    getMakeCredentialsChallenge({username, name})
+    getMakeCredentialsChallenge({username, name}, additional)
         .then((response) => {
             let publicKey = preformatMakeCredReq(response);
             return navigator.credentials.create({ publicKey });

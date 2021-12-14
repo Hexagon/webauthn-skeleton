@@ -22,7 +22,9 @@
 .half {
     width: 46%;
 }
-
+.pubkey {
+    font-size: 1.0em;
+}
 @media (max-width:850px) {
     .left-column {
         width: 90%;
