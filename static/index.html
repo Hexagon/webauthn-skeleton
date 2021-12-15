@@ -46,7 +46,16 @@
     <!-- View when logged in -->
     <div id="mainContainer">
         <h3>Hey <span id="name"></span>!</h3>
-        <p>Your credentials</p>
+        <div id="login-token">
+            <blockquote>
+                <h4>Login token active</h4>
+                <p>To log in on another device, send the link below, or scan the QR code. This will enable you to add local credentials from that device.</p>
+                <p>Token will expire at <span id="login-token-expires"></span></p>
+                <p>Link: <span id="login-token-link"></span></p>
+                <p id="login-token-qr"></p>
+            </blockquote>
+        </div>
+        <h4>Your credentials</h4>
         <table id="credential-table">
             <thead><th width="10%">Counter</th><th>Public Key</th></thead>
             <tbody>

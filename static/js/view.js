@@ -5,26 +5,12 @@ let renderMainContainer = (response) => {
     
     // Clear credential table
     $('#credential-table tbody').html('');
-    
-    // Fill credential table
-    if (response.oneTimeToken) {
-        let tokenUrl = "token/login/" + response.name + "/" + response.oneTimeToken.token;
-        let qrUrl = window.location.origin + "/" + tokenUrl;
-        $('#credential-table tbody').append("<tr><td><pre class\"pubkey\">N/A</pre></td><td><pre class=\"pubkey\">One time token <a href="+ qrUrl + ">" + tokenUrl + "</a> <div id=\"qr\">Token expires: " + new Date(response.oneTimeToken.expires).toLocaleTimeString() + " </div></pre></td></tr>");
 
-        QrCreator.render({
-            text: qrUrl,
-            radius: 0.0, // 0.0 to 0.5
-            ecLevel: 'H', // L, M, Q, H
-            fill: '#1c76c5', // foreground color
-            background: null, // color or null for transparent
-            size: 128 // in pixels
-          }, document.querySelector('#qr'));
-    }
     for(let authenticator of response.authenticators) {
         $('#credential-table tbody').append("<tr><td><pre class\"pubkey\">" + authenticator.counter + "</pre></td><td><pre class=\"pubkey\">" + authenticator.publicKey + "</pre></td></tr>");
     }
 
+    $('#login-token').hide();
     $('#registerContainer').hide();
     $('#mainContainer').show();
 };
@@ -41,13 +27,40 @@ let loadMainContainer = () => {
         })
 };
 
+let hideTokenWindowTimer = undefined;
+let showTokenPopup = (response) => {
+    
+    // Show token window (will close after token expires)
+    $('#login-token').show();
+    
+    // Update interface
+    $('#login-token-expires').text('' + new Date(new Date().getTime()+response.validForSeconds*1000).toLocaleTimeString());
+    $('#login-token-link').html("<a href=\""+response.url+"\">"+ response.url + "</a>");
+
+    // Render Qr Code
+    QrCreator.render({
+        text: response.url,
+        radius: 0.0, // 0.0 to 0.5
+        ecLevel: 'H', // L, M, Q, H
+        fill: '#1c76c5', // foreground color
+        background: null, // color or null for transparent
+        size: 128 // in pixels
+        }, document.querySelector('#login-token-qr'));
+
+    // Schedule hiding token window
+    clearTimeout(hideTokenWindowTimer);
+    hideTokenWindowTimer = setTimeout(() => {
+        $('#login-token').hide();
+    }, response.validForSeconds * 1000);
+
+};
+
 let generateToken = () => {
     return fetch('token/generate')
         .then((response) => response.json())
         .then((response) => {
             if(response.status === 'ok') {
-                alert('New login token generated, this will be valid for 120 seconds.')
-                loadMainContainer();
+                showTokenPopup(response);
             } else {
                 alert(`Error! ${response.message}`)
             }

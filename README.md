@@ -6,6 +6,10 @@ Live at [https://56k.guru/webauthn](https://56k.guru/webauthn)
 
 Tested with Windows Hello, Yubikey or Android lockscreen, more to come.
 
+Supports adding more than one authentication method to the same account.
+
+Supports transfering account to another device by a time limited one time link or QR-code.
+
 Using express and [fido2-lib](https://www.npmjs.com/package/fido2-lib)
 
 Note: This is a _heavily_ modified and improved version of [github.com/fido-alliance/webauthn-demo](https://github.com/fido-alliance/webauthn-demo)
@@ -53,6 +57,8 @@ sudo docker run \
   --restart=always \
   -e WAS_ORIGIN="https://localhost:3000" \
   -e WAS_RPID="localhost" \
+  -e WAS_BASE_URL="https://localhost:3000/" \
+  -e WAS_BASE_URL="https://localhost:3000/orlikethisifservedfromasuburl" \
   -e WAS_RPNAME="WebAuthN Demo" \
   -e WAS_MODE="development" \
   -e WAS_PORT=3000 \

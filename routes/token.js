@@ -1,4 +1,5 @@
 const express   = require('express');
+const config = require('../config');
 const token     = require('../utils/token');
 const router    = express.Router();
 const username  = require('../utils/username');
@@ -65,14 +66,17 @@ router.get('/generate', async (request, response) => {
         })
     } else {
 
-        let tokenValidator = token.generate(request.session.username,120000),
+        let validForSeconds = 120,
+            tokenValidator = token.generate(request.session.username,validForSeconds*1000),
             tokenEncoded = token.encode(tokenValidator.token);
 
         database[request.session.username].oneTimeToken = tokenValidator;
 
         response.json({
             'status': 'ok',
-            'token': tokenEncoded
+            'token': tokenEncoded,
+            'validForSeconds': validForSeconds,
+            'url': config.baseUrl + '/token/login/' + request.session.username + '/' + tokenEncoded
         })
     }
 });
