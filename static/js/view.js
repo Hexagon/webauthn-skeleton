@@ -38,7 +38,7 @@ let showTokenPopup = (response) => {
     $('#login-token-link').html("<a href=\""+response.url+"\">"+ response.url + "</a>");
 
     // Render Qr Code
-    ('#login-token-qr').html('');
+    $('#login-token-qr').html('');
     QrCreator.render({
         text: response.url,
         radius: 0.0, // 0.0 to 0.5
