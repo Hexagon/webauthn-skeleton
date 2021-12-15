@@ -49,7 +49,7 @@ router.get('/login/:userName/:oneTimeToken', async (request, response) => {
         request.session.loggedIn = true;
 
         // Success
-        return response.json({ 'status': 'ok' });
+        return response.redirect(config.baseUrl);
     } else {
         return response.json({
             'status': 'failed',
