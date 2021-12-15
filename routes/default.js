@@ -34,11 +34,23 @@ router.get('/personalInfo', (request, response) => {
             'message': 'Access denied'
         })
     } else {
+        let tokenInfo = undefined;
+        if (database[request.session.username].oneTimeToken) {            
+            if (database[request.session.username].oneTimeToken.expires > new Date().getTime()) {
+                tokenInfo = { 
+                    token: token.encode(database[request.session.username].oneTimeToken.token),
+                    expires: database[request.session.username].oneTimeToken.expires 
+                }
+            } else {
+                tokenInfo = undefined;
+                database[request.session.username].oneTimeToken = undefined;
+            }
+        }
         response.json({
             'status': 'ok',
             'authenticators': database[request.session.username].authenticators,
             'name': database[request.session.username].name,
-            'oneTimeToken': database[request.session.username].oneTimeToken ? token.encode(database[request.session.username].oneTimeToken.token) : undefined
+            'oneTimeToken': tokenInfo
         })
     }
 })
