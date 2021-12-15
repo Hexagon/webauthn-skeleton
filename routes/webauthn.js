@@ -57,7 +57,7 @@ router.post('/register', async (request, response) => {
         'registered': false,
         'id': id,
         'authenticators': [],
-        'onetimetoken': undefined
+        'oneTimeToken': undefined
     }
 
     let challengeMakeCred = await f2l.registration(usernameClean, name, id);
@@ -165,7 +165,7 @@ router.post('/response', async (request, response) => {
         webauthnResp.rawId = base64url.decode(webauthnResp.rawId, true);
         webauthnResp.response.attestationObject = base64url.decode(webauthnResp.response.attestationObject, true);
         const result = await f2l.attestation(webauthnResp, config.origin, request.session.challenge);
-
+        
         const token = {
             credId: result.authnrData.get("credId"),
             publicKey: result.authnrData.get("credentialPublicKeyPem"),
@@ -190,7 +190,7 @@ router.post('/response', async (request, response) => {
         webauthnResp.rawId = base64url.decode(webauthnResp.rawId, true);
         webauthnResp.response.userHandle = base64url.decode(webauthnResp.rawId, true);
         let validAuthenticators = database[request.session.username].authenticators,
-            winningAuthenticator;
+            winningAuthenticator;            
         for(let authrIdx in validAuthenticators) {
             let authr = validAuthenticators[authrIdx];
             try {
@@ -209,7 +209,9 @@ router.post('/response', async (request, response) => {
                 var result = await f2l.assertion(webauthnResp, assertionExpectations);
 
                 winningAuthenticator = result;
-
+                if (database[request.session.username].authenticators[authrIdx]) {
+                    database[request.session.username].authenticators[authrIdx].counter = result.authnrData.get("counter");
+                }                    
                 break;
         
             } catch (e) {
