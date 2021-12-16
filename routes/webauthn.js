@@ -99,6 +99,9 @@ router.post('/add', async (request, response) => {
     // Transfer challenge to session
     request.session.challenge = challengeMakeCred.challenge;
 
+    // Exclude existing credentials
+    challengeMakeCred.excludeCredentials = database[request.session.username].authenticators.map((e) => { return { id: base64url.encode(e.credId, true), type: e.type }; });
+
     // Respond with credentials
     response.json(challengeMakeCred);
 })
@@ -135,7 +138,7 @@ router.post('/login', async (request, response) => {
     let allowCredentials = [];
     for(let authr of database[request.session.username].authenticators) {
         allowCredentials.push({
-              type: 'public-key',
+              type: authr.type,
               id: base64url.encode(authr.credId, true),
               transports: ['usb', 'nfc', 'ble','internal']
         })
@@ -169,6 +172,7 @@ router.post('/response', async (request, response) => {
         const token = {
             credId: result.authnrData.get("credId"),
             publicKey: result.authnrData.get("credentialPublicKeyPem"),
+            type: webauthnResp.type,
             counter: result.authnrData.get("counter"),
             created: new Date().getTime()
         };

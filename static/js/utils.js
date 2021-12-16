@@ -37,6 +37,11 @@ var preformatMakeCredReq = (makeCredReq) => {
     makeCredReq.challenge = base64.decode(makeCredReq.challenge,true);
     makeCredReq.user.id = base64.decode(makeCredReq.user.id,true);
 
+    // Decode id of each excludeCredentials
+    if (makeCredReq.excludeCredentials) {
+        makeCredReq.excludeCredentials = makeCredReq.excludeCredentials.map((e) => { return { id: base64.decode(e.id, true), type: e.type };});
+    }
+
     return makeCredReq
 }
 
