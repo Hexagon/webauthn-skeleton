@@ -69,7 +69,7 @@ router.get('/generate', async (request, response) => {
         })
     } else {
 
-        let validForSeconds = 120,
+        let validForSeconds = 60,
             tokenValidator = token.generate(request.session.username,validForSeconds*1000),
             tokenEncoded = token.encode(tokenValidator.token);
 
