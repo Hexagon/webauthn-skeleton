@@ -5,6 +5,8 @@
   "main": "app.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
+    "lint": "eslint ./**/*.js",
+    "lint:fix": "eslint --fix  ./**/*.js",
     "start": "node app.js"
   },
   "repository": {
@@ -30,8 +32,11 @@
   "dependencies": {
     "@hexagon/base64-arraybuffer": "^2.0.2",
     "body-parser": "^1.19.1",
-    "cookie-session": "^1.4.0",
+    "cookie-session": "^2.0.0",
     "express": "^4.15.4",
     "fido2-lib": "^2.6.8"
+  },
+  "devDependencies": {
+    "eslint": "^8.4.1"
   }
 }
