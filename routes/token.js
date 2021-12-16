@@ -1,5 +1,5 @@
 const express   = require('express');
-const config = require('../config');
+const config    = require('../config');
 const token     = require('../utils/token');
 const router    = express.Router();
 const username  = require('../utils/username');
@@ -47,6 +47,9 @@ router.get('/login/:userName/:oneTimeToken', async (request, response) => {
         // Log in user
         request.session.username  = usernameClean;
         request.session.loggedIn = true;
+
+        // Remove token
+        delete database[usernameClean].oneTimeToken;
 
         // Success
         return response.redirect(config.baseUrl);
