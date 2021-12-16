@@ -6,8 +6,8 @@ let renderMainContainer = (response) => {
     // Clear credential table
     $('#credential-table tbody').html('');
 
-    for(let authenticator of response.authenticators) {
-        $('#credential-table tbody').append("<tr><td><pre class\"pubkey\">" + authenticator.counter + "</pre></td><td><pre class=\"pubkey\">" + authenticator.publicKey + "</pre></td></tr>");
+    for(let authenticator of response.authenticators) {        
+        $('#credential-table tbody').append("<tr><td><pre class\"pubkey\">" + authenticator.counter + "</pre></td><td><pre class=\"pubkey\">" + authenticator.publicKey + "</pre></td><td><pre class=\"pubkey\">" + new Date(authenticator.created).toLocaleString() + "</pre></td></tr>");
     }
 
     $('#login-token').hide();

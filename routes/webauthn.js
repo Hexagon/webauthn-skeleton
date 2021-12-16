@@ -170,6 +170,7 @@ router.post('/response', async (request, response) => {
             credId: result.authnrData.get("credId"),
             publicKey: result.authnrData.get("credentialPublicKeyPem"),
             counter: result.authnrData.get("counter"),
+            created: new Date().getTime()
         };
 
         database[request.session.username].authenticators.push(token);
