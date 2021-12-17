@@ -1,41 +1,41 @@
 const express  = require("express");
-const router   = express.Router();
+const router   = require('@koa/router')();
 const database = require("./db");
 const token    = require("../utils/token");
 
 /* Returns if user is logged in */
-router.get("/isLoggedIn", (request, response) => {
-	if(!request.session.loggedIn) {
-		response.json({
+router.get("/isLoggedIn", (ctx, next) => {
+	if(!ctx.session.loggedIn) {
+		return ctx.body = {
 			"status": "failed"
-		});
+		};
 	} else {
-		response.json({
+		return ctx.body = {
 			"status": "ok"
-		});
+		};
 	}
 });
 
 /* Logs user out */
-router.get("/logout", (request, response) => {
-	request.session.loggedIn = false;
-	request.session.username = undefined;
+router.get("/logout", (ctx, response) => {
+	ctx.session.loggedIn = false;
+	ctx.session.username = undefined;
 
-	response.json({
+	return ctx.body = {
 		"status": "ok"
-	});
+	};
 });
 
 /* Returns personal info and THE SECRET INFORMATION */
-router.get("/personalInfo", (request, response) => {
-	if(!request.session.loggedIn) {
-		response.json({
+router.get("/personalInfo", (ctx, response) => {
+	if(!ctx.session.loggedIn) {
+		return ctx.body = {
 			"status": "failed",
 			"message": "Access denied"
-		});
+		};
 	} else {
 		let tokenInfo = undefined,
-			userInfo = database.users[request.session.username];
+			userInfo = database.users[ctx.session.username];
 		if (userInfo.oneTimeToken) {            
 			if (userInfo.oneTimeToken.expires > new Date().getTime()) {
 				tokenInfo = { 
@@ -47,14 +47,14 @@ router.get("/personalInfo", (request, response) => {
 				userInfo.oneTimeToken = undefined;
 			}
 		}
-		response.json({
+		return ctx.body = {
 			"status": "ok",
 			"authenticators": userInfo.authenticators,
 			"name": userInfo.name,
 			"oneTimeToken": tokenInfo,
 			"recoveryEmail": userInfo.recoveryEmail
-		});
-	}
+		};
+	};
 });
 
 module.exports = router;
