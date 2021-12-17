@@ -1,6 +1,6 @@
-const { Fido2Lib } = require("fido2-lib");
-
-const base64url = require("@hexagon/base64-arraybuffer");
+const 
+	{ Fido2Lib } = require("fido2-lib"),
+	base64url = require("@hexagon/base64-arraybuffer");
 
 class Fido2 {
 	constructor(rpId, rpName, rpIcon, timeout) {

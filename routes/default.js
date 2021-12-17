@@ -1,10 +1,11 @@
-const express  = require("express");
-const router   = require('@koa/router')();
-const database = require("./db");
-const token    = require("../utils/token");
+const 
+	database = require("../db/db"),
+	token    = require("../utils/token"),
+
+	router   = require("@koa/router")();
 
 /* Returns if user is logged in */
-router.get("/isLoggedIn", (ctx, next) => {
+router.get("/isLoggedIn", (ctx) => {
 	if(!ctx.session.loggedIn) {
 		return ctx.body = {
 			"status": "failed"
@@ -17,7 +18,7 @@ router.get("/isLoggedIn", (ctx, next) => {
 });
 
 /* Logs user out */
-router.get("/logout", (ctx, response) => {
+router.get("/logout", (ctx) => {
 	ctx.session.loggedIn = false;
 	ctx.session.username = undefined;
 
@@ -27,7 +28,7 @@ router.get("/logout", (ctx, response) => {
 });
 
 /* Returns personal info and THE SECRET INFORMATION */
-router.get("/personalInfo", (ctx, response) => {
+router.get("/personalInfo", (ctx) => {
 	if(!ctx.session.loggedIn) {
 		return ctx.body = {
 			"status": "failed",
@@ -54,7 +55,7 @@ router.get("/personalInfo", (ctx, response) => {
 			"oneTimeToken": tokenInfo,
 			"recoveryEmail": userInfo.recoveryEmail
 		};
-	};
+	}
 });
 
 module.exports = router;

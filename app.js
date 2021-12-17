@@ -1,25 +1,26 @@
-const Koa = require('koa');
-const serve = require('koa-static');
-const bodyParser = require('koa-bodyparser');
-const session = require('koa-session');
+const 
+	Koa = require("koa"),
+	serve = require("koa-static"),
+	bodyParser = require("koa-bodyparser"),
+	session = require("koa-session"),
 
-const path = require('path');
-const crypto = require('crypto');
+	path = require("path"),
+	crypto = require("crypto"),
 
-const config = require('./config');
+	config = require("./config"),
 
-const defaultroutes = require('./routes/default');
-const webuathnauth = require('./routes/webauthn.js');
-const tokenroutes   	= require("./routes/token");
+	defaultroutes = require("./routes/default"),
+	webuathnroutes = require("./routes/webauthn.js"),
+	tokenroutes   	= require("./routes/token"),
 
-const app = new Koa();
+	app = new Koa();
 
 // Static files (./static)
-app.use(serve(path.join(__dirname, 'public/static')));
+app.use(serve(path.join(__dirname, "public/static")));
 
 // Session
-app.keys = [crypto.randomBytes(32).toString('hex')];
-app.use(session({}, app));
+app.keys = [crypto.randomBytes(32).toString("hex")];
+app.use(session({key: 'session'}, app));
 
 // Middleware
 app.use(bodyParser());
@@ -35,20 +36,18 @@ app.use(tokenroutes.routes());
 app.use(tokenroutes.allowedMethods());
 
 // Local development
-if (config.mode === 'development') {
-  const https = require('https');
-  const fs = require('fs');
-  https.createServer({
-    key: fs.readFileSync('./keys/key.pem'),
-    cert: fs.readFileSync('./keys/cert.pem')
-  }, app.callback()).listen(port);  
+if (config.mode === "development") {
+	const https = require("https");
+	const fs = require("fs");
+	https.createServer({
+		key: fs.readFileSync("./keys/key.pem"),
+		cert: fs.readFileSync("./keys/cert.pem")
+	}, app.callback()).listen(config.port);  
 
 // "Production" HTTP - (for use behind https proxy)
 } else {
-	app.listen(port);
+	app.listen(config.port);
 
 }
 
-console.log(`Started app on port ${port}`);
-
-module.exports = app;
+console.log(`Started app on port ${config.port}`);

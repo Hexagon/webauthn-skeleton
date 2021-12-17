@@ -2,11 +2,11 @@ const
 	Fido2     = require("../utils/fido2"),
 	config    = require("../config"),
 	crypto    = require("crypto"),
-	database  = require("./db"),
+	database  = require("../db/db"),
 	username  = require("../utils/username"),
 	base64url = require("@hexagon/base64-arraybuffer"),
 
-	router 	  = require('@koa/router')({ prefix: '/webauthn' }),
+	router 	  = require("@koa/router")({ prefix: "/webauthn" }),
 	
 	f2l       = new Fido2(config.rpId, config.rpName, undefined, config.challengeTimeoutMs);
 
@@ -21,15 +21,15 @@ let randomBase64URLBuffer = (len) => {
 	return base64url.encode(buff, true);
 };
 
-router.post("/register", async (ctx, response) => {
-	if(!ctx.body || !ctx.body.username || !ctx.body.name) {
+router.post("/register", async (ctx) => {
+	if(!ctx.request.body || !ctx.request.body.username || !ctx.request.body.name) {
 		return ctx.body = {
 			"status": "failed",
 			"message": "ctx missing name or username field!"
 		};
 	}
 
-	let usernameClean = username.clean(ctx.body.username),
+	let usernameClean = username.clean(ctx.request.body.username),
 		name     = usernameClean;
 
 	if (!usernameClean) {
@@ -68,8 +68,8 @@ router.post("/register", async (ctx, response) => {
 });
 
 
-router.post("/add", async (ctx, response) => {
-	if(!ctx.body) {
+router.post("/add", async (ctx) => {
+	if(!ctx.request.body) {
 		return ctx.body = {
 			"status": "failed",
 			"message": "ctx missing name or username field!"
@@ -99,25 +99,21 @@ router.post("/add", async (ctx, response) => {
 	return ctx.body = challengeMakeCred;
 });
 
-router.post("/login", async (ctx, response) => {
-	if(!ctx.body || !ctx.body.username) {
+router.post("/login", async (ctx) => {
+	if(!ctx.request.body || !ctx.request.body.username) {
 		return ctx.body = {
 			"status": "failed",
 			"message": "ctx missing username field!"
 		};
-
-		return;
 	}
 
-	let usernameClean = username.clean(ctx.body.username);
+	let usernameClean = username.clean(ctx.request.body.username);
 
 	if(!database.users[usernameClean] || !database.users[usernameClean].registered) {
 		return ctx.body = {
 			"status": "failed",
 			"message": `User ${usernameClean} does not exist!`
 		};
-
-		return;
 	}
 
 	let assertionOptions = await f2l.login(usernameClean);
@@ -144,16 +140,16 @@ router.post("/login", async (ctx, response) => {
 	return ctx.body = assertionOptions;
 });
 
-router.post("/response", async (ctx, response) => {
-	if(!ctx.body       || !ctx.body.id
-    || !ctx.body.rawId || !ctx.body.response
-    || !ctx.body.type  || ctx.body.type !== "public-key" ) {
+router.post("/response", async (ctx) => {
+	if(!ctx.request.body       || !ctx.request.body.id
+    || !ctx.request.body.rawId || !ctx.request.body.response
+    || !ctx.request.body.type  || ctx.request.body.type !== "public-key" ) {
 		return ctx.body = {
 			"status": "failed",
 			"message": "Response missing one or more of id/rawId/response/type fields, or type is not public-key!"
 		};
 	}
-	let webauthnResp = ctx.body;
+	let webauthnResp = ctx.request.body;
 	if(webauthnResp.response.attestationObject !== undefined) {
 		/* This is create cred */
 		webauthnResp.rawId = base64url.decode(webauthnResp.rawId, true);

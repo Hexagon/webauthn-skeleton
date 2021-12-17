@@ -1,6 +1,6 @@
 let database = {
-    users: {
-        /* username: {
+	users: {
+		/* username: {
             'name': name,
             'registered': false,
             'id': id,
@@ -8,7 +8,7 @@ let database = {
             'oneTimeToken': undefined,
             'recoveryEmail': undefined
         } */
-    }
+	}
 };
 
 module.exports = database;

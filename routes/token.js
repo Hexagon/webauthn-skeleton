@@ -4,12 +4,12 @@ const
 	username  = require("../utils/username"),
 	database  = require("../db/db"),
 
-	router    = require('@koa/router')({ prefix: '/token' });
+	router    = require("@koa/router")({ prefix: "/token" });
 
-router.get("/login/:userName/:oneTimeToken", async (request, response) => {
+router.get("/login/:userName/:oneTimeToken", async (ctx) => {
 
 	// Check that token exists
-	if(!request.params.oneTimeToken) {
+	if(!ctx.params.oneTimeToken) {
 		return ctx.body = {
 			"status": "failed",
 			"message": "Invalid token"
@@ -17,7 +17,7 @@ router.get("/login/:userName/:oneTimeToken", async (request, response) => {
 	}
 
 	// Check username
-	let usernameClean = username.clean(request.params.userName);
+	let usernameClean = username.clean(ctx.params.userName);
 	if(!usernameClean) {
 		return ctx.body = {
 			"status": "failed",
@@ -43,17 +43,17 @@ router.get("/login/:userName/:oneTimeToken", async (request, response) => {
 	}
 
 	// Validate token
-	if (token.validate(usernameClean, request.params.oneTimeToken, tokenValidator )) {
+	if (token.validate(usernameClean, ctx.params.oneTimeToken, tokenValidator )) {
 
 		// Log in user
-		request.session.username  = usernameClean;
-		request.session.loggedIn = true;
+		ctx.session.username  = usernameClean;
+		ctx.session.loggedIn = true;
 
 		// Remove token
 		delete database.users[usernameClean].oneTimeToken;
 
 		// Success
-		return response.redirect(config.baseUrl);
+		return ctx.redirect(config.baseUrl);
 	} else {
 		return ctx.body = {
 			"status": "failed",
@@ -63,24 +63,24 @@ router.get("/login/:userName/:oneTimeToken", async (request, response) => {
 
 });
 
-router.get("/generate", async (request, response) => {
-	if(!request.session.loggedIn) {
+router.get("/generate", async (ctx) => {
+	if(!ctx.session.loggedIn) {
 		return ctx.body = {
 			"status": "failed"
 		};
 	} else {
 
 		const
-			tokenValidator = token.generate(request.session.username,config.loginTokenExpireSeconds*1000),
+			tokenValidator = token.generate(ctx.session.username,config.loginTokenExpireSeconds*1000),
 			tokenEncoded = token.encode(tokenValidator.token);
 
-		database.users[request.session.username].oneTimeToken = tokenValidator;
+		database.users[ctx.session.username].oneTimeToken = tokenValidator;
 
 		return ctx.body = {
 			"status": "ok",
 			"token": tokenEncoded,
 			"validForSeconds": config.loginTokenExpireSeconds,
-			"url": config.baseUrl + "/token/login/" + request.session.username + "/" + tokenEncoded
+			"url": config.baseUrl + "/token/login/" + ctx.session.username + "/" + tokenEncoded
 		};
 	}
 });

@@ -1,6 +1,6 @@
 {
-  "name": "webauthn-skeleton-koa",
-  "version": "0.0.9",
+  "name": "webauthn-skeleton",
+  "version": "0.9.0",
   "description": "Skeleton for a Node.js powered Web Authentication API enabled website",
   "main": "app.js",
   "scripts": {
@@ -18,13 +18,18 @@
     "hello",
     "windows hello",
     "passwordless",
+    "assword",
     "koa",
     "koajs"
   ],
-  "author": "Pinta365@GitHub",
+  "author": "Hexagon <hexagon@56k.guru>",
   "contributors": [
-    "Hexagon <hexagon@56k.guru>"
+    "Pinta365@GitHub"
   ],
+  "bugs": {
+    "url": "https://github.com/hexagon/webauthn-skeleton/issues"
+  },
+  "homepage": "https://github.com/hexagon/webauthn-skeleton#readme",
   "license": "MIT",
   "dependencies": {
     "@hexagon/base64-arraybuffer": "^2.0.1",
