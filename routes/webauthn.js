@@ -1,14 +1,14 @@
-const express   = require("express");
-const Fido2     = require("../utils/fido2");
-const config    = require("../config");
-const crypto    = require("crypto");
-const router    = express.Router();
-const database  = require("./db");
-const username  = require("../utils/username");
+const 
+	Fido2     = require("../utils/fido2"),
+	config    = require("../config"),
+	crypto    = require("crypto"),
+	database  = require("./db"),
+	username  = require("../utils/username"),
+	base64url = require("@hexagon/base64-arraybuffer"),
 
-const base64url = require("@hexagon/base64-arraybuffer");
-
-let f2l = new Fido2(config.rpId, config.rpName, undefined, config.challengeTimeoutMs);
+	router 	  = require('@koa/router')({ prefix: '/webauthn' }),
+	
+	f2l       = new Fido2(config.rpId, config.rpName, undefined, config.challengeTimeoutMs);
 
 /**
  * Returns base64url encoded buffer of the given length
@@ -21,33 +21,29 @@ let randomBase64URLBuffer = (len) => {
 	return base64url.encode(buff, true);
 };
 
-router.post("/register", async (request, response) => {
-	if(!request.body || !request.body.username || !request.body.name) {
-		response.json({
+router.post("/register", async (ctx, response) => {
+	if(!ctx.body || !ctx.body.username || !ctx.body.name) {
+		return ctx.body = {
 			"status": "failed",
-			"message": "Request missing name or username field!"
-		});
-
-		return;
+			"message": "ctx missing name or username field!"
+		};
 	}
 
-	let usernameClean = username.clean(request.body.username),
+	let usernameClean = username.clean(ctx.body.username),
 		name     = usernameClean;
 
 	if (!usernameClean) {
-		response.json({
+		return ctx.body = {
 			"status": "failed",
 			"message": "Invalid username!"
-		});
+		};
 	}
 
 	if(database.users[usernameClean] && database.users[usernameClean].registered) {
-		response.json({
+		return ctx.body = {
 			"status": "failed",
 			"message": `Username ${username} already exists`
-		});
-
-		return;
+		};
 	}
 
 	let id = randomBase64URLBuffer();
@@ -64,66 +60,62 @@ router.post("/register", async (request, response) => {
 	let challengeMakeCred = await f2l.registration(usernameClean, name, id);
     
 	// Transfer challenge and username to session
-	request.session.challenge = challengeMakeCred.challenge;
-	request.session.username  = usernameClean;
+	ctx.session.challenge = challengeMakeCred.challenge;
+	ctx.session.username  = usernameClean;
 
 	// Respond with credentials
-	response.json(challengeMakeCred);
+	return ctx.body = challengeMakeCred;
 });
 
 
-router.post("/add", async (request, response) => {
-	if(!request.body) {
-		response.json({
+router.post("/add", async (ctx, response) => {
+	if(!ctx.body) {
+		return ctx.body = {
 			"status": "failed",
-			"message": "Request missing name or username field!"
-		});
-
-		return;
+			"message": "ctx missing name or username field!"
+		};
 	}
 
-	if(!request.session.loggedIn) {
-		response.json({
+	if(!ctx.session.loggedIn) {
+		return ctx.body = {
 			"status": "failed",
 			"message": "User not logged in!"
-		});
-
-		return;
+		};
 	}
 
-	let usernameClean = username.clean(request.session.username),
+	let usernameClean = username.clean(ctx.session.username),
 		name     = usernameClean,
-		id       = database.users[request.session.username].id;
+		id       = database.users[ctx.session.username].id;
 
 	let challengeMakeCred = await f2l.registration(usernameClean, name, id);
     
 	// Transfer challenge to session
-	request.session.challenge = challengeMakeCred.challenge;
+	ctx.session.challenge = challengeMakeCred.challenge;
 
 	// Exclude existing credentials
-	challengeMakeCred.excludeCredentials = database.users[request.session.username].authenticators.map((e) => { return { id: base64url.encode(e.credId, true), type: e.type }; });
+	challengeMakeCred.excludeCredentials = database.users[ctx.session.username].authenticators.map((e) => { return { id: base64url.encode(e.credId, true), type: e.type }; });
 
 	// Respond with credentials
-	response.json(challengeMakeCred);
+	return ctx.body = challengeMakeCred;
 });
 
-router.post("/login", async (request, response) => {
-	if(!request.body || !request.body.username) {
-		response.json({
+router.post("/login", async (ctx, response) => {
+	if(!ctx.body || !ctx.body.username) {
+		return ctx.body = {
 			"status": "failed",
-			"message": "Request missing username field!"
-		});
+			"message": "ctx missing username field!"
+		};
 
 		return;
 	}
 
-	let usernameClean = username.clean(request.body.username);
+	let usernameClean = username.clean(ctx.body.username);
 
 	if(!database.users[usernameClean] || !database.users[usernameClean].registered) {
-		response.json({
+		return ctx.body = {
 			"status": "failed",
 			"message": `User ${usernameClean} does not exist!`
-		});
+		};
 
 		return;
 	}
@@ -131,13 +123,13 @@ router.post("/login", async (request, response) => {
 	let assertionOptions = await f2l.login(usernameClean);
 
 	// Transfer challenge and username to session
-	request.session.challenge = assertionOptions.challenge;
-	request.session.username  = usernameClean;
+	ctx.session.challenge = assertionOptions.challenge;
+	ctx.session.username  = usernameClean;
 
 	// Pass this, to limit selectable credentials for user... This may be set in response instead, so that
 	// all of a users server (public) credentials isn't exposed to anyone
 	let allowCredentials = [];
-	for(let authr of database.users[request.session.username].authenticators) {
+	for(let authr of database.users[ctx.session.username].authenticators) {
 		allowCredentials.push({
 			type: authr.type,
 			id: base64url.encode(authr.credId, true),
@@ -147,28 +139,26 @@ router.post("/login", async (request, response) => {
 
 	assertionOptions.allowCredentials = allowCredentials;
 
-	request.session.allowCredentials = allowCredentials;
+	ctx.session.allowCredentials = allowCredentials;
 
-	response.json(assertionOptions);
+	return ctx.body = assertionOptions;
 });
 
-router.post("/response", async (request, response) => {
-	if(!request.body       || !request.body.id
-    || !request.body.rawId || !request.body.response
-    || !request.body.type  || request.body.type !== "public-key" ) {
-		response.json({
+router.post("/response", async (ctx, response) => {
+	if(!ctx.body       || !ctx.body.id
+    || !ctx.body.rawId || !ctx.body.response
+    || !ctx.body.type  || ctx.body.type !== "public-key" ) {
+		return ctx.body = {
 			"status": "failed",
 			"message": "Response missing one or more of id/rawId/response/type fields, or type is not public-key!"
-		});
-
-		return;
+		};
 	}
-	let webauthnResp = request.body;
+	let webauthnResp = ctx.body;
 	if(webauthnResp.response.attestationObject !== undefined) {
 		/* This is create cred */
 		webauthnResp.rawId = base64url.decode(webauthnResp.rawId, true);
 		webauthnResp.response.attestationObject = base64url.decode(webauthnResp.response.attestationObject, true);
-		const result = await f2l.attestation(webauthnResp, config.origin, request.session.challenge);
+		const result = await f2l.attestation(webauthnResp, config.origin, ctx.session.challenge);
         
 		const token = {
 			credId: result.authnrData.get("credId"),
@@ -178,24 +168,24 @@ router.post("/response", async (request, response) => {
 			created: new Date().getTime()
 		};
 
-		database.users[request.session.username].authenticators.push(token);
-		database.users[request.session.username].registered = true;
+		database.users[ctx.session.username].authenticators.push(token);
+		database.users[ctx.session.username].registered = true;
 
-		request.session.loggedIn = true;
+		ctx.session.loggedIn = true;
 
-		return response.json({ "status": "ok" });
+		return ctx.body = { "status": "ok" };
 
 
 	} else if(webauthnResp.response.authenticatorData !== undefined) {
 		/* This is get assertion */
-		//result = utils.verifyAuthenticatorAssertionResponse(webauthnResp, database.users[request.session.username].authenticators);
-		// add allowCredentials to limit the number of allowed credential for the authentication process. For further details refer to webauthn specs: (https://www.w3.org/TR/webauthn-2/#dom-publickeycredentialrequestoptions-allowcredentials).
+		//result = utils.verifyAuthenticatorAssertionResponse(webauthnResp, database.users[ctx.session.username].authenticators);
+		// add allowCredentials to limit the number of allowed credential for the authentication process. For further details refer to webauthn specs: (https://www.w3.org/TR/webauthn-2/#dom-publickeycredentialctxoptions-allowcredentials).
 		// save the challenge in the session information...
 		// send authnOptions to client and pass them in to `navigator.credentials.get()`...
 		// get response back from client (clientAssertionResponse)
 		webauthnResp.rawId = base64url.decode(webauthnResp.rawId, true);
 		webauthnResp.response.userHandle = base64url.decode(webauthnResp.rawId, true);
-		let validAuthenticators = database.users[request.session.username].authenticators,
+		let validAuthenticators = database.users[ctx.session.username].authenticators,
 			winningAuthenticator;            
 		for(let authrIdx in validAuthenticators) {
 			let authr = validAuthenticators[authrIdx];
@@ -203,8 +193,8 @@ router.post("/response", async (request, response) => {
 
 				let assertionExpectations = {
 					// Remove the following comment if allowCredentials has been added into authnOptions so the credential received will be validate against allowCredentials array.
-					allowCredentials: request.session.allowCredentials,
-					challenge: request.session.challenge,
+					allowCredentials: ctx.session.allowCredentials,
+					challenge: ctx.session.challenge,
 					origin: config.origin,
 					factor: "either",
 					publicKey: authr.publicKey,
@@ -215,8 +205,8 @@ router.post("/response", async (request, response) => {
 				let result = await f2l.assertion(webauthnResp, assertionExpectations);
 
 				winningAuthenticator = result;
-				if (database.users[request.session.username].authenticators[authrIdx]) {
-					database.users[request.session.username].authenticators[authrIdx].counter = result.authnrData.get("counter");
+				if (database.users[ctx.session.username].authenticators[authrIdx]) {
+					database.users[ctx.session.username].authenticators[authrIdx].counter = result.authnrData.get("counter");
 				}                    
 				break;
         
@@ -225,22 +215,22 @@ router.post("/response", async (request, response) => {
 			}
 		}
 		// authentication complete!
-		if (winningAuthenticator && database.users[request.session.username].registered ) {
-			request.session.loggedIn = true;
-			return response.json({ "status": "ok" });
+		if (winningAuthenticator && database.users[ctx.session.username].registered ) {
+			ctx.session.loggedIn = true;
+			return ctx.body = { "status": "ok" };
 
 			// Authentication failed
 		} else {
-			return response.json({
+			return ctx.body = {
 				"status": "failed",
 				"message": "Can not authenticate signature!"
-			});
+			};
 		}
 	} else {
-		return response.json({
+		return ctx.body = {
 			"status": "failed",
 			"message": "Can not authenticate signature!"
-		});
+		};
 	}
 });
 

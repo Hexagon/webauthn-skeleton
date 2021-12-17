@@ -1,3 +1,6 @@
+## Fork information
+All credit goes to the original contributors as seen below. This is a only forked and ported copy that use Koa instead of Express as web framework.
+
 # webauthn-skeleton
 
 This is a working skeleton of a Node.js/Express application with passwordless login (Web Authentication API, WebAuthN, FIDO2).
