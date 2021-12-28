@@ -4,7 +4,7 @@ const
 	crypto    = require("crypto"),
 	database  = require("../db/db"),
 	username  = require("../utils/username"),
-	base64url = require("@hexagon/base64-arraybuffer"),
+	base64    = require("@hexagon/base64"),
 
 	router 	  = require("@koa/router")({ prefix: "/webauthn" }),
 	
@@ -18,7 +18,7 @@ const
 let randomBase64URLBuffer = (len) => {
 	len = len || 32;
 	let buff = crypto.randomBytes(len);
-	return base64url.encode(buff, true);
+	return base64.fromArrayBuffer(buff, true);
 };
 
 router.post("/register", async (ctx) => {
@@ -93,7 +93,7 @@ router.post("/add", async (ctx) => {
 	ctx.session.challenge = challengeMakeCred.challenge;
 
 	// Exclude existing credentials
-	challengeMakeCred.excludeCredentials = database.users[ctx.session.username].authenticators.map((e) => { return { id: base64url.encode(e.credId, true), type: e.type }; });
+	challengeMakeCred.excludeCredentials = database.users[ctx.session.username].authenticators.map((e) => { return { id: base64.fromArrayBuffer(e.credId, true), type: e.type }; });
 
 	// Respond with credentials
 	return ctx.body = challengeMakeCred;
@@ -128,7 +128,7 @@ router.post("/login", async (ctx) => {
 	for(let authr of database.users[ctx.session.username].authenticators) {
 		allowCredentials.push({
 			type: authr.type,
-			id: base64url.encode(authr.credId, true),
+			id: base64.fromArrayBuffer(authr.credId, true),
 			transports: ["usb", "nfc", "ble","internal"]
 		});
 	}
@@ -152,8 +152,8 @@ router.post("/response", async (ctx) => {
 	let webauthnResp = ctx.request.body;
 	if(webauthnResp.response.attestationObject !== undefined) {
 		/* This is create cred */
-		webauthnResp.rawId = base64url.decode(webauthnResp.rawId, true);
-		webauthnResp.response.attestationObject = base64url.decode(webauthnResp.response.attestationObject, true);
+		webauthnResp.rawId = base64.toArrayBuffer(webauthnResp.rawId, true);
+		webauthnResp.response.attestationObject = base64.toArrayBuffer(webauthnResp.response.attestationObject, true);
 		const result = await f2l.attestation(webauthnResp, config.origin, ctx.session.challenge);
         
 		const token = {
@@ -179,8 +179,8 @@ router.post("/response", async (ctx) => {
 		// save the challenge in the session information...
 		// send authnOptions to client and pass them in to `navigator.credentials.get()`...
 		// get response back from client (clientAssertionResponse)
-		webauthnResp.rawId = base64url.decode(webauthnResp.rawId, true);
-		webauthnResp.response.userHandle = base64url.decode(webauthnResp.rawId, true);
+		webauthnResp.rawId = base64.toArrayBuffer(webauthnResp.rawId, true);
+		webauthnResp.response.userHandle = base64.toArrayBuffer(webauthnResp.rawId, true);
 		let validAuthenticators = database.users[ctx.session.username].authenticators,
 			winningAuthenticator;            
 		for(let authrIdx in validAuthenticators) {

@@ -1,6 +1,6 @@
 {
   "name": "webauthn-skeleton",
-  "version": "0.9.0",
+  "version": "0.9.1",
   "description": "Skeleton for a Node.js powered Web Authentication API enabled website",
   "main": "app.js",
   "scripts": {
@@ -32,7 +32,7 @@
   "homepage": "https://github.com/hexagon/webauthn-skeleton#readme",
   "license": "MIT",
   "dependencies": {
-    "@hexagon/base64-arraybuffer": "^2.0.1",
+    "@hexagon/base64": "^1.0.11",
     "@koa/router": "^10.1.1",
     "fido2-lib": "^2.6.8",
     "koa": "^2.13.4",

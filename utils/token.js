@@ -1,5 +1,5 @@
 const 
-	base64    = require("@hexagon/base64-arraybuffer"),
+	base64    = require("@hexagon/base64"),
 	username  = require("./username"),
 	crypto    = require("crypto");
 
@@ -9,7 +9,7 @@ const validate = (usernameInput, token, tokenValidator) => {
 	// Try decoding token from base64url
 	let tokenDecoded;
 	try {
-		tokenDecoded = base64.decode(token, true);
+		tokenDecoded = base64.toArrayBuffer(token, true);
 	} catch (e) {
 		return false;
 	}
@@ -22,7 +22,7 @@ const validate = (usernameInput, token, tokenValidator) => {
 		return false;
 	} else if (tokenValidator.expires < timeNow) {  
 		return false;
-	} else if (base64.encode(tokenValidator.token,true) !== base64.encode(tokenDecoded, true)) {
+	} else if (base64.fromArrayBuffer(tokenValidator.token,true) !== base64.fromArrayBuffer(tokenDecoded, true)) {
 		return false;
 	} else {
 		// Success!
@@ -59,7 +59,7 @@ const generate = (usernameInput, expireMs) => {
 
 // Encode token to base64url format
 const encode = (token) => {
-	return base64.encode(token, true);
+	return base64.fromArrayBuffer(token, true);
 };
 
 module.exports = {
