@@ -1,6 +1,6 @@
-const { Fido2Lib } = require("fido2-lib");
-
-const base64url = require("@hexagon/base64-arraybuffer");
+const 
+	{ Fido2Lib } = require("fido2-lib"),
+	base64       = require("@hexagon/base64");
 
 class Fido2 {
 	constructor(rpId, rpName, rpIcon, timeout) {
@@ -29,7 +29,7 @@ class Fido2 {
 
 		registrationOptions.status = "ok";
 
-		registrationOptions.challenge = base64url.encode(registrationOptions.challenge, true);
+		registrationOptions.challenge = base64.fromArrayBuffer(registrationOptions.challenge, true);
 
 		return registrationOptions;
 	}
@@ -46,7 +46,7 @@ class Fido2 {
 
 	async login() {
 		let assertionOptions = await this.f2l.assertionOptions();
-		assertionOptions.challenge = base64url.encode(assertionOptions.challenge, true);
+		assertionOptions.challenge = base64.fromArrayBuffer(assertionOptions.challenge, true);
 		assertionOptions.status = "ok";
 		return assertionOptions;
 	}

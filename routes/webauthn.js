@@ -8,7 +8,7 @@ const username  = require("../utils/username");
 const userNameMaxLenght = 25;
 //const util 		= require('util');
 
-const base64url = require("@hexagon/base64-arraybuffer");
+const base64url = require("@hexagon/base64");
 
 let f2l = new Fido2(config.rpId, config.rpName, undefined, config.challengeTimeoutMs);
 
@@ -20,7 +20,7 @@ let f2l = new Fido2(config.rpId, config.rpName, undefined, config.challengeTimeo
 let randomBase64URLBuffer = (len) => {
 	len = len || 32;
 	let buff = crypto.randomBytes(len);
-	return base64url.encode(buff, true);
+	return base64.fromArrayBuffer(buff, true);
 };
 
 router.post("/register", async (request, response) => {
@@ -178,11 +178,8 @@ router.post("/login", async (request, response) => {
 		for (var i=0; i< longInt8View.length; i++) {
 			longInt8View[i] = scrivibile[i];
 		}
-		//console.log(non_scrivibile);
-		//console.log(scrivibile);
 		allowCredentials.push({
 			type: authr.type,
-			//id: base64url.encode(authr.credId, true),
 			id: base64url.encode(non_scrivibile, true),
 			transports: ["usb", "nfc", "ble", "internal"]
 		});

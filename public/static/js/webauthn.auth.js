@@ -67,10 +67,10 @@ function register (username, additional) {
 		.then((response) => {
 			let makeCredResponse = {
 				id: response.id,
-				rawId: base64.encode(response.rawId,true),
+				rawId: base64.fromArrayBuffer(response.rawId,true),
 				response: {
-					attestationObject: base64.encode(response.response.attestationObject,true),
-					clientDataJSON: base64.encode(response.response.clientDataJSON,true)
+					attestationObject: base64.fromArrayBuffer(response.response.attestationObject,true),
+					clientDataJSON: base64.fromArrayBuffer(response.response.clientDataJSON,true)
 				},
 				type: response.type
 			};
