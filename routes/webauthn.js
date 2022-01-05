@@ -42,7 +42,7 @@ router.post("/register", async (ctx) => {
 	if(database.users[usernameClean] && database.users[usernameClean].registered) {
 		return ctx.body = {
 			"status": "failed",
-			"message": `Username ${username} already exists`
+			"message": `Username ${usernameClean} already exists`
 		};
 	}
 
