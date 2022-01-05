@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="css/demo.css">
 </head>
 <body>
+
     <div id="header">
         <h1>Web Authentication API demo</h1>   
     </div>
@@ -67,10 +68,33 @@
         <button id="button-logout">Logout</button>
     </div>
 
+    <!-- Vanta net container -->
+    <div id="background"></div>
+
     <!-- External dependencies -->
     <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@hexagon/base64@1/dist/base64.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/qr-creator/dist/qr-creator.min.js"></script>
+
+    <!-- Vanta net background -->
+    <script src="https://cdn.jsdelivr.net/npm/three@0.119.0/build/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vanta@0.5.21/dist/vanta.net.min.js"></script>
+    <script>
+        VANTA.NET({
+            el: "#background",
+            mouseControls: false,
+            touchControls: false,
+            gyroControls: true,
+            minHeight: 200.00,
+            minWidth: 200.00,
+            scale: 1.00,
+            scaleMobile: 1.00,
+            color: 0x17294d,
+            backgroundColor: 0x4050f,
+            maxDistance: 18.00,
+            spacing: 18.00
+        });
+    </script>
 
     <!-- Internals-->
     <script src="js/utils.js"></script>
