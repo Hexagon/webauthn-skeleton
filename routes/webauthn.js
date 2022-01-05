@@ -57,9 +57,8 @@ router.post("/register", async (request, response) => {
 	if(db.users[usernameClean] && db.users[usernameClean].registered) {
 		response.json({
 			"status": "failed",
-			"message": "Username " + usernameClean + " already exists"
-		});
-		return;
+			"message": `Username ${usernameClean} already exists`
+		};
 	}
 	//console.log("usernameClean " + usernameClean);
 	//console.log("db.users[usernameClean] " + db.users[usernameClean].name);
