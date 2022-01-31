@@ -1,6 +1,6 @@
 {
   "name": "webauthn-skeleton",
-  "version": "0.9.3",
+  "version": "0.9.4",
   "description": "Skeleton for a Node.js powered Web Authentication API enabled website",
   "main": "app.js",
   "scripts": {
@@ -34,7 +34,7 @@
   "dependencies": {
     "@hexagon/base64": "^1.0.11",
     "@koa/router": "^10.1.1",
-    "fido2-lib": "^2.6.8",
+    "fido2-lib": "^2.7.1",
     "koa": "^2.13.4",
     "koa-bodyparser": "^4.3.0",
     "koa-session": "^6.2.0",
