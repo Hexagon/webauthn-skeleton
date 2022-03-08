@@ -1,5 +1,6 @@
 const JsonDB = require('node-json-db').JsonDB
 const Config = require('node-json-db/dist/lib/JsonDBConfig').Config
+const crypto = require("crypto")
 
 const database = new JsonDB(new Config("myDataBase", true, false, '/'));
 
@@ -10,6 +11,8 @@ try {
     // Since /test1/test does't exist.
     console.error("Created a new db");
     database.push("/users","{}");
+    database.push("/keys", [crypto.randomBytes(32).toString("hex")]);
+    console.log(database.getData("/keys"));
 };
 
 /*

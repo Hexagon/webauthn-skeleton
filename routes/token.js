@@ -34,7 +34,8 @@ router.get("/login/:userName/:oneTimeToken", async (request, response) => {
 	}
 
 	// Check that token validator exists
-	let tokenValidator = database.users[usernameClean].oneTimeToken;
+	//let tokenValidator = database.users[usernameClean].oneTimeToken;
+	let tokenValidator = database.getData("/users/" + usernameClean + "/oneTimeToken")
 	if (!tokenValidator) {
 		return response.json({
 			"status": "failed",
@@ -50,7 +51,8 @@ router.get("/login/:userName/:oneTimeToken", async (request, response) => {
 		request.session.loggedIn = true;
 
 		// Remove token
-		delete database.users[usernameClean].oneTimeToken;
+		//delete database.users[usernameClean].oneTimeToken;
+		database.delete("/users/" + usernameClean + "/oneTimeToken");
 
 		// Success
 		return response.redirect(config.baseUrl);
