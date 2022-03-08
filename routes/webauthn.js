@@ -205,7 +205,7 @@ router.post("/response", async (request, response) => {
 		webauthnResp.response.attestationObject = base64url.decode(webauthnResp.response.attestationObject, true);
 		const result = await f2l.attestation(webauthnResp, config.origin, request.session.challenge);
         
-		console.log(result.authnrData.get("credId"));
+		//console.log(result.authnrData.get("credId"));
 		var scrivibile = new Uint8Array(result.authnrData.get("credId"));
 		//console.log(scrivibile);
 		const token = {
@@ -225,7 +225,7 @@ router.post("/response", async (request, response) => {
 		database.push("/users/" + request.session.username + "/registered", true);
 		request.session.loggedIn = true;
 
-		console.log(database.getData("/users/" + request.session.username + "/authenticators[0]/credId"));
+		//console.log(database.getData("/users/" + request.session.username + "/authenticators[0]/credId"));
 		//console.log(database.getData("/users/" + request.session.username + "/authenticators[0]/credId").byteLength);
 		//console.log(database.getData("/users/" + request.session.username + "/authenticators[0]/credId[0]"));
 		//pippo = database.getData("/users/" + request.session.username + "/authenticators[0]");
