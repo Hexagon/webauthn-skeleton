@@ -25,7 +25,8 @@ router.get("/login/:userName/:oneTimeToken", async (request, response) => {
 	}
 
 	// Check that user exists
-	if(!database.users[usernameClean] || !database.users[usernameClean].registered) {
+	//if(!database.users[usernameClean] || !database.users[usernameClean].registered) {
+	if(!database.getData("/users/" + usernameClean) || !database.getData("/users/" + usernameClean + "/registered")) {
 		return response.json({
 			"status": "failed",
 			"message": `User ${usernameClean} does not exist!`
@@ -73,7 +74,9 @@ router.get("/generate", async (request, response) => {
 			tokenValidator = token.generate(request.session.username,config.loginTokenExpireSeconds*1000),
 			tokenEncoded = token.encode(tokenValidator.token);
 
-		database.users[request.session.username].oneTimeToken = tokenValidator;
+		//database.users[request.session.username].oneTimeToken = tokenValidator;
+		
+		database.push("/users/" + request.session.username + "/oneTimeToken", tokenValidator);
 
 		response.json({
 			"status": "ok",
