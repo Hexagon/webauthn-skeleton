@@ -232,7 +232,7 @@ router.post("/response", async (request, response) => {
 		//console.log(Buffer.from(database.getData("/users/" + request.session.username + "/authenticators[0]/credId").toString('base64')));
 		//scrivibile = new Uint8Array(database.getData("/users/" + request.session.username + "/authenticators[0]/credId"));
 		
-		console.log(scrivibile);
+		//console.log(scrivibile);
 		var non_scrivibile = new ArrayBuffer(32);
 		var longInt8View = new Uint8Array(non_scrivibile);
 		for (var i=0; i< longInt8View.length; i++) {
