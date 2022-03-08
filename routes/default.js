@@ -35,7 +35,8 @@ router.get("/personalInfo", (request, response) => {
 		});
 	} else {
 		let tokenInfo = undefined,
-			userInfo = database.users[request.session.username];
+			//userInfo = database.users[request.session.username];
+			userInfo = database.getData("/users/"+ request.session.username);
 		if (userInfo.oneTimeToken) {            
 			if (userInfo.oneTimeToken.expires > new Date().getTime()) {
 				tokenInfo = { 
