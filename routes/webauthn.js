@@ -22,12 +22,12 @@ let randomBase64URLBuffer = (len) => {
 };
 
 router.post("/register", async (request, response) => {
+	//console.log("register");
 	if(!request.body || !request.body.username || !request.body.name) {
 		response.json({
 			"status": "failed",
 			"message": "Request missing name or username field!"
 		});
-
 		return;
 	}
 
@@ -40,26 +40,32 @@ router.post("/register", async (request, response) => {
 			"message": "Invalid username!"
 		});
 	}
-
-	if(database.users[usernameClean] && database.users[usernameClean].registered) {
+    
+	let db = database.getData("/");
+	//if(database.users[usernameClean] && database.users[usernameClean].registered) {
+	if(db.users[usernameClean] && db.users[usernameClean].registered) {
 		response.json({
 			"status": "failed",
-			"message": `Username ${username} already exists`
+			"message": "Username " + usernameClean + " already exists"
 		});
-
 		return;
 	}
+	//console.log("usernameClean " + usernameClean);
+	//console.log("db.users[usernameClean] " + db.users[usernameClean].name);
 
 	let id = randomBase64URLBuffer();
 
-	database.users[usernameClean] = {
-		"name": name,
-		"registered": false,
-		"id": id,
-		"authenticators": [],
-		"oneTimeToken": undefined,
-		"recoveryEmail": undefined
-	};
+	//database.users[usernameClean] = {
+		database.push("/users",
+		{
+		[usernameClean]: {
+			name: name,
+			registered: false,
+			id: id,
+			authenticators: [],
+			oneTimeToken: undefined,
+			recoveryEmail: undefined
+	}});
 
 	let challengeMakeCred = await f2l.registration(usernameClean, name, id);
     
@@ -93,7 +99,8 @@ router.post("/add", async (request, response) => {
 
 	let usernameClean = username.clean(request.session.username),
 		name     = usernameClean,
-		id       = database.users[request.session.username].id;
+		//id       = database.users[request.session.username].id;
+		id = database.getData("/users/" + request.session.username + "/id");
 
 	let challengeMakeCred = await f2l.registration(usernameClean, name, id);
     
@@ -101,7 +108,8 @@ router.post("/add", async (request, response) => {
 	request.session.challenge = challengeMakeCred.challenge;
 
 	// Exclude existing credentials
-	challengeMakeCred.excludeCredentials = database.users[request.session.username].authenticators.map((e) => { return { id: base64url.encode(e.credId, true), type: e.type }; });
+	//challengeMakeCred.excludeCredentials = database.users[request.session.username].authenticators.map((e) => { return { id: base64url.encode(e.credId, true), type: e.type }; });
+	challengeMakeCred.excludeCredentials = database.getData("/users/" + request.session.username + "/authenticators").map((e) => { return { id: base64url.encode(e.credId, true), type: e.type }; });
 
 	// Respond with credentials
 	response.json(challengeMakeCred);
@@ -118,8 +126,9 @@ router.post("/login", async (request, response) => {
 	}
 
 	let usernameClean = username.clean(request.body.username);
-
-	if(!database.users[usernameClean] || !database.users[usernameClean].registered) {
+	let db = database.getData("/");
+	//if(!database.users[usernameClean] || !database.users[usernameClean].registered) {
+	if(!db.users[usernameClean] || !db.users[usernameClean].registered) {
 		response.json({
 			"status": "failed",
 			"message": `User ${usernameClean} does not exist!`
@@ -137,7 +146,9 @@ router.post("/login", async (request, response) => {
 	// Pass this, to limit selectable credentials for user... This may be set in response instead, so that
 	// all of a users server (public) credentials isn't exposed to anyone
 	let allowCredentials = [];
-	for(let authr of database.users[request.session.username].authenticators) {
+	//for(let authr of database.users[request.session.username].authenticators) {
+	for(let authr of database.getData("/users/" + request.session.username + "/authenticators")) {
+		//console.log(authr);
 		allowCredentials.push({
 			type: authr.type,
 			id: base64url.encode(authr.credId, true),
@@ -150,6 +161,8 @@ router.post("/login", async (request, response) => {
 	request.session.allowCredentials = allowCredentials;
 
 	response.json(assertionOptions);
+	//console.log("uscita");
+
 });
 
 router.post("/response", async (request, response) => {
@@ -178,9 +191,11 @@ router.post("/response", async (request, response) => {
 			created: new Date().getTime()
 		};
 
-		database.users[request.session.username].authenticators.push(token);
-		database.users[request.session.username].registered = true;
 
+		//database.users[request.session.username].authenticators.push(token);
+		database.push("/users/" + request.session.username + "/authenticators[]", token);
+		//database.users[request.session.username].registered = true;
+		database.push("/users/" + request.session.username + "/registered", true);
 		request.session.loggedIn = true;
 
 		return response.json({ "status": "ok" });
@@ -195,7 +210,9 @@ router.post("/response", async (request, response) => {
 		// get response back from client (clientAssertionResponse)
 		webauthnResp.rawId = base64url.decode(webauthnResp.rawId, true);
 		webauthnResp.response.userHandle = base64url.decode(webauthnResp.rawId, true);
-		let validAuthenticators = database.users[request.session.username].authenticators,
+
+		//let validAuthenticators = database.users[request.session.username].authenticators,
+		let validAuthenticators = database.getData("/users/" + request.session.username + "/authenticators"),
 			winningAuthenticator;            
 		for(let authrIdx in validAuthenticators) {
 			let authr = validAuthenticators[authrIdx];
@@ -225,7 +242,8 @@ router.post("/response", async (request, response) => {
 			}
 		}
 		// authentication complete!
-		if (winningAuthenticator && database.users[request.session.username].registered ) {
+		//if (winningAuthenticator && database.users[request.session.username].registered ) {
+		if (winningAuthenticator && database.getData("/users/" + request.session.username + "/registered") ) {
 			request.session.loggedIn = true;
 			return response.json({ "status": "ok" });
 
