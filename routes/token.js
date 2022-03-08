@@ -3,7 +3,7 @@ const config    = require("../config");
 const token     = require("../utils/token");
 const router    = express.Router();
 const username  = require("../utils/username");
-const database  = require("./db");
+const database  = require("../utils/db");
 
 router.get("/login/:userName/:oneTimeToken", async (request, response) => {
 

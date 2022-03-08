@@ -8,8 +8,8 @@ try {
 } catch(error) {
     // The error will tell you where the DataPath stopped. In this case test1
     // Since /test1/test does't exist.
-    console.error("Createt a new db");
-    //database.push("/users","{}");
+    console.error("Created a new db");
+    database.push("/users","{}");
 };
 
 /*

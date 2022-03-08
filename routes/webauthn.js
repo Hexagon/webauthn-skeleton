@@ -3,7 +3,7 @@ const Fido2     = require("../utils/fido2");
 const config    = require("../config");
 const crypto    = require("crypto");
 const router    = express.Router();
-const database  = require("./db");
+const database  = require("../utils/db");
 const username  = require("../utils/username");
 
 const base64url = require("@hexagon/base64-arraybuffer");
