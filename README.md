@@ -1,5 +1,7 @@
 # webauthn-skeleton
 
+## Modified vesion with persistent data on file.
+
 This is a working skeleton of a Node.js/Express application with passwordless login (Web Authentication API, WebAuthN, FIDO2).
 
 Live at [https://56k.guru/webauthn](https://56k.guru/webauthn)
