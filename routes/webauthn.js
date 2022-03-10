@@ -5,6 +5,7 @@ const crypto    = require("crypto");
 const router    = express.Router();
 const database  = require("../utils/db");
 const username  = require("../utils/username");
+const userNameMaxLenght = 25;
 //const util 		= require('util');
 
 const base64url = require("@hexagon/base64-arraybuffer");
@@ -42,8 +43,17 @@ router.post("/register", async (request, response) => {
 		});
 	}
     
+	if ( usernameClean.length > userNameMaxLenght ) {
+		response.json({
+			"status": "failed",
+			"message": "Username " + usernameClean + " too long. Max username lenght is " + userNameMaxLenght + " characters!"
+		});
+		return;
+	}
+
 	let db = database.getData("/");
 	//if(database.users[usernameClean] && database.users[usernameClean].registered) {
+
 	if(db.users[usernameClean] && db.users[usernameClean].registered) {
 		response.json({
 			"status": "failed",
@@ -58,15 +68,15 @@ router.post("/register", async (request, response) => {
 
 	//database.users[usernameClean] = {
 	database.push("/users",
-	{ 
-	[usernameClean]: {
-		name: name,
-		registered: false,
-		id: id,
-		authenticators: [],
-		oneTimeToken: undefined,
-		recoveryEmail: undefined
-	}});
+		{ 
+			[usernameClean]: {
+				name: name,
+				registered: false,
+				id: id,
+				authenticators: [],
+				oneTimeToken: undefined,
+				recoveryEmail: undefined
+			}}, false);
 
 	let challengeMakeCred = await f2l.registration(usernameClean, name, id);
     
@@ -127,6 +137,7 @@ router.post("/add", async (request, response) => {
 });
 
 router.post("/login", async (request, response) => {
+	//console.log("login");
 	if(!request.body || !request.body.username) {
 		response.json({
 			"status": "failed",
