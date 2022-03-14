@@ -42,6 +42,13 @@
             <button class="button-primary fl half" id="button-register">Register</button>
             <button class="button-primary fl half" id="button-login">Login</button>
         </div>
+        <div id="mioDivT">
+            Registered users:
+        </div>
+    
+        <div id="mioDivU">
+
+        </div>
     </div>
 
     <!-- View when logged in -->
@@ -109,6 +116,7 @@
                 if(response)
                     return loadMainContainer()
             })
+            getUsers();
         })
     </script>
 

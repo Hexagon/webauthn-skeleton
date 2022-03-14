@@ -26,7 +26,8 @@ router.get("/login/:userName/:oneTimeToken", async (ctx) => {
 	}
 
 	// Check that user exists
-	if(!database.users[usernameClean] || !database.users[usernameClean].registered) {
+	//if(!database.users[usernameClean] || !database.users[usernameClean].registered) {
+	if(!database.getData("/users/" + usernameClean) || !database.getData("/users/" + usernameClean + "/registered")) {
 		return ctx.body = {
 			"status": "failed",
 			"message": `User ${usernameClean} does not exist!`
@@ -34,7 +35,8 @@ router.get("/login/:userName/:oneTimeToken", async (ctx) => {
 	}
 
 	// Check that token validator exists
-	let tokenValidator = database.users[usernameClean].oneTimeToken;
+	//let tokenValidator = database.users[usernameClean].oneTimeToken;
+	let tokenValidator = database.getData("/users/" + usernameClean + "/oneTimeToken")
 	if (!tokenValidator) {
 		return ctx.body = {
 			"status": "failed",
@@ -50,7 +52,8 @@ router.get("/login/:userName/:oneTimeToken", async (ctx) => {
 		ctx.session.loggedIn = true;
 
 		// Remove token
-		delete database.users[usernameClean].oneTimeToken;
+		//delete database.users[usernameClean].oneTimeToken;
+		database.delete("/users/" + usernameClean + "/oneTimeToken");
 
 		// Success
 		return ctx.redirect(config.baseUrl);
@@ -74,7 +77,9 @@ router.get("/generate", async (ctx) => {
 			tokenValidator = token.generate(ctx.session.username,config.loginTokenExpireSeconds*1000),
 			tokenEncoded = token.encode(tokenValidator.token);
 
-		database.users[ctx.session.username].oneTimeToken = tokenValidator;
+		//database.users[ctx.session.username].oneTimeToken = tokenValidator;
+		database.push("/users/" + ctx.session.username + "/oneTimeToken", tokenValidator);
+
 
 		return ctx.body = {
 			"status": "ok",
