@@ -184,7 +184,7 @@ router.post("/login", async (request, response) => {
 			type: authr.type,
 			//id: base64url.encode(authr.credId, true),
 			id: base64url.encode(non_scrivibile, true),
-			transports: ["usb", "nfc", "ble","internal"]
+			transports: ["usb", "nfc", "ble", "internal"]
 		});
 	}
 
@@ -193,7 +193,6 @@ router.post("/login", async (request, response) => {
 	request.session.allowCredentials = allowCredentials;
 
 	response.json(assertionOptions);
-	//console.log("allowCredentials");
 	//console.log(allowCredentials);
 
 });
