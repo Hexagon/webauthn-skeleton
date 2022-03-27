@@ -3,7 +3,7 @@ const config    = require("../config");
 const token     = require("../utils/token");
 const router    = express.Router();
 const username  = require("../utils/username");
-const database  = require("./db");
+const database  = require("../utils/db");
 
 router.get("/login/:userName/:oneTimeToken", async (request, response) => {
 
@@ -25,7 +25,8 @@ router.get("/login/:userName/:oneTimeToken", async (request, response) => {
 	}
 
 	// Check that user exists
-	if(!database.users[usernameClean] || !database.users[usernameClean].registered) {
+	//if(!database.users[usernameClean] || !database.users[usernameClean].registered) {
+	if(!database.getData("/users/" + usernameClean) || !database.getData("/users/" + usernameClean + "/registered")) {
 		return response.json({
 			"status": "failed",
 			"message": `User ${usernameClean} does not exist!`
@@ -33,7 +34,8 @@ router.get("/login/:userName/:oneTimeToken", async (request, response) => {
 	}
 
 	// Check that token validator exists
-	let tokenValidator = database.users[usernameClean].oneTimeToken;
+	//let tokenValidator = database.users[usernameClean].oneTimeToken;
+	let tokenValidator = database.getData("/users/" + usernameClean + "/oneTimeToken")
 	if (!tokenValidator) {
 		return response.json({
 			"status": "failed",
@@ -49,7 +51,8 @@ router.get("/login/:userName/:oneTimeToken", async (request, response) => {
 		request.session.loggedIn = true;
 
 		// Remove token
-		delete database.users[usernameClean].oneTimeToken;
+		//delete database.users[usernameClean].oneTimeToken;
+		database.delete("/users/" + usernameClean + "/oneTimeToken");
 
 		// Success
 		return response.redirect(config.baseUrl);
@@ -73,7 +76,9 @@ router.get("/generate", async (request, response) => {
 			tokenValidator = token.generate(request.session.username,config.loginTokenExpireSeconds*1000),
 			tokenEncoded = token.encode(tokenValidator.token);
 
-		database.users[request.session.username].oneTimeToken = tokenValidator;
+		//database.users[request.session.username].oneTimeToken = tokenValidator;
+		
+		database.push("/users/" + request.session.username + "/oneTimeToken", tokenValidator);
 
 		response.json({
 			"status": "ok",

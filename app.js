@@ -10,6 +10,7 @@ const
 	defaultroutes 	= require("./routes/default"),
 	webuathnroutes  = require("./routes/webauthn"),
 	tokenroutes   	= require("./routes/token"),
+//	database  		= require("./utils/db"),
 
 	app           	= express();
 
@@ -19,10 +20,12 @@ app.use(bodyParser.json());
 app.use(cookieSession({
 	name: "session",
 	keys: [crypto.randomBytes(32).toString("hex")],
-
+	//keys: database.getData("/keys"),
 	// Cookie Options
 	maxAge: config.cookieMaxAge
 }));
+
+//console.log(database.getData("/keys"));
 
 // Static files (./static)
 app.use(express.static(path.join(__dirname, "public/static")));

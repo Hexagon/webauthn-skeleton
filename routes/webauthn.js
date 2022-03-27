@@ -3,8 +3,10 @@ const Fido2     = require("../utils/fido2");
 const config    = require("../config");
 const crypto    = require("crypto");
 const router    = express.Router();
-const database  = require("./db");
+const database  = require("../utils/db");
 const username  = require("../utils/username");
+const userNameMaxLenght = 25;
+//const util 		= require('util');
 
 const base64url = require("@hexagon/base64-arraybuffer");
 
@@ -22,12 +24,12 @@ let randomBase64URLBuffer = (len) => {
 };
 
 router.post("/register", async (request, response) => {
+	//console.log("register");
 	if(!request.body || !request.body.username || !request.body.name) {
 		response.json({
 			"status": "failed",
 			"message": "Request missing name or username field!"
 		});
-
 		return;
 	}
 
@@ -40,26 +42,41 @@ router.post("/register", async (request, response) => {
 			"message": "Invalid username!"
 		});
 	}
-
-	if(database.users[usernameClean] && database.users[usernameClean].registered) {
+    
+	if ( usernameClean.length > userNameMaxLenght ) {
 		response.json({
 			"status": "failed",
-			"message": `Username ${username} already exists`
+			"message": "Username " + usernameClean + " too long. Max username lenght is " + userNameMaxLenght + " characters!"
 		});
-
 		return;
 	}
 
+	let db = database.getData("/");
+	//if(database.users[usernameClean] && database.users[usernameClean].registered) {
+
+	if(db.users[usernameClean] && db.users[usernameClean].registered) {
+		response.json({
+			"status": "failed",
+			"message": "Username " + usernameClean + " already exists"
+		});
+		return;
+	}
+	//console.log("usernameClean " + usernameClean);
+	//console.log("db.users[usernameClean] " + db.users[usernameClean].name);
+
 	let id = randomBase64URLBuffer();
 
-	database.users[usernameClean] = {
-		"name": name,
-		"registered": false,
-		"id": id,
-		"authenticators": [],
-		"oneTimeToken": undefined,
-		"recoveryEmail": undefined
-	};
+	//database.users[usernameClean] = {
+	database.push("/users",
+		{ 
+			[usernameClean]: {
+				name: name,
+				registered: false,
+				id: id,
+				authenticators: [],
+				oneTimeToken: undefined,
+				recoveryEmail: undefined
+			}}, false);
 
 	let challengeMakeCred = await f2l.registration(usernameClean, name, id);
     
@@ -93,7 +110,8 @@ router.post("/add", async (request, response) => {
 
 	let usernameClean = username.clean(request.session.username),
 		name     = usernameClean,
-		id       = database.users[request.session.username].id;
+		//id       = database.users[request.session.username].id;
+		id = database.getData("/users/" + request.session.username + "/id");
 
 	let challengeMakeCred = await f2l.registration(usernameClean, name, id);
     
@@ -101,13 +119,25 @@ router.post("/add", async (request, response) => {
 	request.session.challenge = challengeMakeCred.challenge;
 
 	// Exclude existing credentials
-	challengeMakeCred.excludeCredentials = database.users[request.session.username].authenticators.map((e) => { return { id: base64url.encode(e.credId, true), type: e.type }; });
-
+	//challengeMakeCred.excludeCredentials = database.users[request.session.username].authenticators.map((e) => { return { id: base64url.encode(e.credId, true), type: e.type }; });
+	//challengeMakeCred.excludeCredentials = database.getData("/users/" + request.session.username + "/authenticators").map((e) => { return { id: base64url.encode(e.credId, true), type: e.type }; });
+	challengeMakeCred.excludeCredentials = database.getData("/users/" + request.session.username + "/authenticators").map((e) => { 
+		var scrivibile = e.credId;
+		var non_scrivibile = new ArrayBuffer(32);
+		var longInt8View = new Uint8Array(non_scrivibile);
+		for (var i=0; i< longInt8View.length; i++) {
+			longInt8View[i] = scrivibile[i];
+		}
+		//console.log(non_scrivibile);
+		//return { id: base64url.encode(e.credId, true), type: e.type };
+		return { id: base64url.encode(non_scrivibile, true), type: e.type };
+	});
 	// Respond with credentials
 	response.json(challengeMakeCred);
 });
 
 router.post("/login", async (request, response) => {
+	//console.log("login");
 	if(!request.body || !request.body.username) {
 		response.json({
 			"status": "failed",
@@ -118,8 +148,9 @@ router.post("/login", async (request, response) => {
 	}
 
 	let usernameClean = username.clean(request.body.username);
-
-	if(!database.users[usernameClean] || !database.users[usernameClean].registered) {
+	let db = database.getData("/");
+	//if(!database.users[usernameClean] || !database.users[usernameClean].registered) {
+	if(!db.users[usernameClean] || !db.users[usernameClean].registered) {
 		response.json({
 			"status": "failed",
 			"message": `User ${usernameClean} does not exist!`
@@ -137,11 +168,23 @@ router.post("/login", async (request, response) => {
 	// Pass this, to limit selectable credentials for user... This may be set in response instead, so that
 	// all of a users server (public) credentials isn't exposed to anyone
 	let allowCredentials = [];
-	for(let authr of database.users[request.session.username].authenticators) {
+	//for(let authr of database.users[request.session.username].authenticators) {
+	for(let authr of database.getData("/users/" + request.session.username + "/authenticators")) {
+		var scrivibile = authr.credId;
+		//console.log("authr");
+		//console.log(authr);
+		var non_scrivibile = new ArrayBuffer(32);
+		var longInt8View = new Uint8Array(non_scrivibile);
+		for (var i=0; i< longInt8View.length; i++) {
+			longInt8View[i] = scrivibile[i];
+		}
+		//console.log(non_scrivibile);
+		//console.log(scrivibile);
 		allowCredentials.push({
 			type: authr.type,
-			id: base64url.encode(authr.credId, true),
-			transports: ["usb", "nfc", "ble","internal"]
+			//id: base64url.encode(authr.credId, true),
+			id: base64url.encode(non_scrivibile, true),
+			transports: ["usb", "nfc", "ble", "internal"]
 		});
 	}
 
@@ -150,6 +193,8 @@ router.post("/login", async (request, response) => {
 	request.session.allowCredentials = allowCredentials;
 
 	response.json(assertionOptions);
+	//console.log(allowCredentials);
+
 });
 
 router.post("/response", async (request, response) => {
@@ -170,19 +215,40 @@ router.post("/response", async (request, response) => {
 		webauthnResp.response.attestationObject = base64url.decode(webauthnResp.response.attestationObject, true);
 		const result = await f2l.attestation(webauthnResp, config.origin, request.session.challenge);
         
+		//console.log(result.authnrData.get("credId"));
+		var scrivibile = new Uint8Array(result.authnrData.get("credId"));
+		//console.log(scrivibile);
 		const token = {
-			credId: result.authnrData.get("credId"),
+			//credId: result.authnrData.get("credId"),
+			credId: scrivibile,
 			publicKey: result.authnrData.get("credentialPublicKeyPem"),
 			type: webauthnResp.type,
 			counter: result.authnrData.get("counter"),
 			created: new Date().getTime()
 		};
+		//console.log(result.authnrData.get("credId"));
+		//console.log(JSON.parse(String.fromCharCode.apply(null, result.authnrData.get("credId"))));
 
-		database.users[request.session.username].authenticators.push(token);
-		database.users[request.session.username].registered = true;
-
+		//database.users[request.session.username].authenticators.push(token);
+		database.push("/users/" + request.session.username + "/authenticators[]", token);
+		//database.users[request.session.username].registered = true;
+		database.push("/users/" + request.session.username + "/registered", true);
 		request.session.loggedIn = true;
 
+		//console.log(database.getData("/users/" + request.session.username + "/authenticators[0]/credId"));
+		//console.log(database.getData("/users/" + request.session.username + "/authenticators[0]/credId").byteLength);
+		//console.log(database.getData("/users/" + request.session.username + "/authenticators[0]/credId[0]"));
+		//pippo = database.getData("/users/" + request.session.username + "/authenticators[0]");
+		//console.log(Buffer.from(database.getData("/users/" + request.session.username + "/authenticators[0]/credId").toString('base64')));
+		//scrivibile = new Uint8Array(database.getData("/users/" + request.session.username + "/authenticators[0]/credId"));
+		
+		//console.log(scrivibile);
+		var non_scrivibile = new ArrayBuffer(32);
+		var longInt8View = new Uint8Array(non_scrivibile);
+		for (var i=0; i< longInt8View.length; i++) {
+			longInt8View[i] = scrivibile[i];
+		}
+		//console.log(non_scrivibile);
 		return response.json({ "status": "ok" });
 
 
@@ -195,11 +261,20 @@ router.post("/response", async (request, response) => {
 		// get response back from client (clientAssertionResponse)
 		webauthnResp.rawId = base64url.decode(webauthnResp.rawId, true);
 		webauthnResp.response.userHandle = base64url.decode(webauthnResp.rawId, true);
-		let validAuthenticators = database.users[request.session.username].authenticators,
+
+		//let validAuthenticators = database.users[request.session.username].authenticators,
+		let validAuthenticators = database.getData("/users/" + request.session.username + "/authenticators"),
 			winningAuthenticator;            
 		for(let authrIdx in validAuthenticators) {
 			let authr = validAuthenticators[authrIdx];
 			try {
+				var scrivibile = authr.credId;
+				var non_scrivibile = new ArrayBuffer(32);
+				var longInt8View = new Uint8Array(non_scrivibile);
+				for (var i=0; i< longInt8View.length; i++) {
+					longInt8View[i] = scrivibile[i];
+		  		}
+				//console.log(non_scrivibile);
 
 				let assertionExpectations = {
 					// Remove the following comment if allowCredentials has been added into authnOptions so the credential received will be validate against allowCredentials array.
@@ -209,7 +284,8 @@ router.post("/response", async (request, response) => {
 					factor: "either",
 					publicKey: authr.publicKey,
 					prevCounter: authr.counter,
-					userHandle: authr.credId
+					//userHandle: authr.credId
+					userHandle: non_scrivibile
 				};
 
 				let result = await f2l.assertion(webauthnResp, assertionExpectations);
@@ -225,7 +301,8 @@ router.post("/response", async (request, response) => {
 			}
 		}
 		// authentication complete!
-		if (winningAuthenticator && database.users[request.session.username].registered ) {
+		//if (winningAuthenticator && database.users[request.session.username].registered ) {
+		if (winningAuthenticator && database.getData("/users/" + request.session.username + "/registered") ) {
 			request.session.loggedIn = true;
 			return response.json({ "status": "ok" });
 
