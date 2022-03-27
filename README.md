@@ -4,7 +4,7 @@
 
 This is a working skeleton of a Node.js/Express application with passwordless login (Web Authentication API, WebAuthN, FIDO2).
 
-Live at [https://webauthn.panu.it](https://webauthn.panu.it)
+Live at [https://56k.guru/webauthn](https://56k.guru/webauthn)
 
 Tested with Windows Hello, Yubikey or Android lockscreen, more to come.
 
