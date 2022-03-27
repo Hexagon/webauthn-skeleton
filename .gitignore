@@ -6,6 +6,12 @@ yarn-debug.log*
 yarn-error.log*
 lerna-debug.log*
 
+#VisualStudioCode
+webauthn-skeleton.code-workspace
+
+#Database
+myDataBase.json
+
 # Keys
 keys/*
 !keys/placekeyshere.txt

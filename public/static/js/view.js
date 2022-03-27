@@ -15,6 +15,8 @@ const renderMainContainer = (response) => {
 
 	$("#login-token").hide();
 	$("#registerContainer").hide();
+	$("#mioDivT").hide();
+	$("#mioDivU").hide();
 	$("#mainContainer").show();
 };
 
@@ -24,6 +26,28 @@ const loadMainContainer = () => {
 		.then((response) => {
 			if(response.status === "ok") {
 				renderMainContainer(response);
+			} else {
+				alert(`Error! ${response.message}`);
+			}
+		});
+};
+
+const renderUsers = (response) => {
+	//$("#mioDivT").html("Registered users:<br/>");
+	$("#mioDivU").html("");
+	let i = 0;
+	while ( response.users[i] !== undefined ) {
+		$("#mioDivU").append(response.users[i] + "<br>");
+		i++;
+	}
+};
+
+const getUsers = () => {
+	return fetch("users", {credentials: "include"})
+		.then((response) => response.json())
+		.then((response) => {
+			if(response.status === "ok") {
+				renderUsers(response);
 			} else {
 				alert(`Error! ${response.message}`);
 			}
@@ -87,6 +111,9 @@ $("#button-logout").click(() => {
 	fetch("logout", {credentials: "include"});
 
 	$("#registerContainer").show();
+	getUsers();
+	$("#mioDivT").show();
+	$("#mioDivU").show();
 	$("#mainContainer").hide();
 });
 

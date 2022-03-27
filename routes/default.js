@@ -1,6 +1,7 @@
 const 
 	database = require("../db/db"),
 	token    = require("../utils/token"),
+	//mime 	 = require('mime-types')
 
 	router   = require("@koa/router")();
 
@@ -36,7 +37,8 @@ router.get("/personalInfo", (ctx) => {
 		};
 	} else {
 		let tokenInfo = undefined,
-			userInfo = database.users[ctx.session.username];
+			//userInfo = database.users[ctx.session.username];
+			userInfo = database.getData("/users/"+ ctx.session.username);
 		if (userInfo.oneTimeToken) {            
 			if (userInfo.oneTimeToken.expires > new Date().getTime()) {
 				tokenInfo = { 
@@ -56,6 +58,25 @@ router.get("/personalInfo", (ctx) => {
 			"recoveryEmail": userInfo.recoveryEmail
 		};
 	}
+});
+
+router.get("/users", (ctx) => {
+	let usersArray = database.getData("/users");
+	let users=Object.keys(usersArray);
+	
+	for (let fai = (users.length - 1); fai >= 0; fai--) {
+		if ( usersArray[users[fai]].registered != true) {
+			users.splice(fai,1);
+		}
+	}
+
+	let myReponse = {"status": "ok", "users": users};
+	//response.json(myReponse);
+	//Sreturn ctx.body = myReponse;
+	//let jsonType = mime.lookup('json');
+	//ctx.response.set("content-type", jsonType);
+	return ctx.body = JSON.stringify(myReponse);
+
 });
 
 module.exports = router;

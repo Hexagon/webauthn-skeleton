@@ -8,7 +8,9 @@ const
 
 	router 	  = require("@koa/router")({ prefix: "/webauthn" }),
 	
-	f2l       = new Fido2(config.rpId, config.rpName, undefined, config.challengeTimeoutMs);
+	f2l       = new Fido2(config.rpId, config.rpName, undefined, config.challengeTimeoutMs),
+	
+	userNameMaxLenght = 25;
 
 /**
  * Returns base64url encoded buffer of the given length
@@ -39,7 +41,18 @@ router.post("/register", async (ctx) => {
 		};
 	}
 
-	if(database.users[usernameClean] && database.users[usernameClean].registered) {
+	if ( usernameClean.length > userNameMaxLenght ) {
+		response.json({
+			"status": "failed",
+			"message": "Username " + usernameClean + " too long. Max username lenght is " + userNameMaxLenght + " characters!"
+		});
+		return;
+	}
+
+	let db = database.getData("/");
+
+	//if(database.users[usernameClean] && database.users[usernameClean].registered) {
+	if(db.users[usernameClean] && db.users[usernameClean].registered) {
 		return ctx.body = {
 			"status": "failed",
 			"message": `Username ${usernameClean} already exists`
@@ -48,14 +61,16 @@ router.post("/register", async (ctx) => {
 
 	let id = randomBase64URLBuffer();
 
-	database.users[usernameClean] = {
+	//database.users[usernameClean] = {
+	database.push("/users", { [usernameClean]: {
 		"name": name,
 		"registered": false,
 		"id": id,
 		"authenticators": [],
 		"oneTimeToken": undefined,
 		"recoveryEmail": undefined
-	};
+	//};
+	}}, false);
 
 	let challengeMakeCred = await f2l.registration(usernameClean, name, id);
     
@@ -85,7 +100,8 @@ router.post("/add", async (ctx) => {
 
 	let usernameClean = username.clean(ctx.session.username),
 		name     = usernameClean,
-		id       = database.users[ctx.session.username].id;
+		//id       = database.users[ctx.session.username].id;
+		id = database.getData("/users/" + ctx.session.username + "/id");
 
 	let challengeMakeCred = await f2l.registration(usernameClean, name, id);
     
@@ -93,8 +109,17 @@ router.post("/add", async (ctx) => {
 	ctx.session.challenge = challengeMakeCred.challenge;
 
 	// Exclude existing credentials
-	challengeMakeCred.excludeCredentials = database.users[ctx.session.username].authenticators.map((e) => { return { id: base64.fromArrayBuffer(e.credId, true), type: e.type }; });
-
+	//challengeMakeCred.excludeCredentials = database.users[ctx.session.username].authenticators.map((e) => { return { id: base64.fromArrayBuffer(e.credId, true), type: e.type }; });
+	challengeMakeCred.excludeCredentials = database.getData("/users/" + ctx.session.username + "/authenticators").map((e) => {
+		let scrivibile = e.credId;
+		let non_scrivibile = new ArrayBuffer(32);
+		let longInt8View = new Uint8Array(non_scrivibile);
+		for (let i=0; i< longInt8View.length; i++) {
+			longInt8View[i] = scrivibile[i];
+		}
+		//return { id: base64url.encode(non_scrivibile, true), type: e.type };
+		return { id: base64.fromArrayBuffer(non_scrivibile, true), type: e.type };
+	});
 	// Respond with credentials
 	return ctx.body = challengeMakeCred;
 });
@@ -109,7 +134,10 @@ router.post("/login", async (ctx) => {
 
 	let usernameClean = username.clean(ctx.request.body.username);
 
-	if(!database.users[usernameClean] || !database.users[usernameClean].registered) {
+	let db = database.getData("/");
+
+	//if(!database.users[usernameClean] || !database.users[usernameClean].registered) {
+	if(!db.users[usernameClean] || !db.users[usernameClean].registered) {
 		return ctx.body = {
 			"status": "failed",
 			"message": `User ${usernameClean} does not exist!`
@@ -125,11 +153,22 @@ router.post("/login", async (ctx) => {
 	// Pass this, to limit selectable credentials for user... This may be set in response instead, so that
 	// all of a users server (public) credentials isn't exposed to anyone
 	let allowCredentials = [];
-	for(let authr of database.users[ctx.session.username].authenticators) {
+	//for(let authr of database.users[ctx.session.username].authenticators) {
+	for(let authr of database.getData("/users/" + ctx.session.username + "/authenticators")) {
+		var scrivibile = authr.credId;
+		//console.log("authr");
+		//console.log(authr);
+		var non_scrivibile = new ArrayBuffer(32);
+		var longInt8View = new Uint8Array(non_scrivibile);
+		for (var i=0; i< longInt8View.length; i++) {
+			longInt8View[i] = scrivibile[i];
+		}
+
 		allowCredentials.push({
 			type: authr.type,
-			id: base64.fromArrayBuffer(authr.credId, true),
-			transports: ["usb", "nfc", "ble","internal"]
+			//id: base64.fromArrayBuffer(authr.credId, true),
+			id: base64.fromArrayBuffer(non_scrivibile, true),
+			transports: ["usb", "nfc", "ble", "internal"]
 		});
 	}
 
@@ -155,17 +194,23 @@ router.post("/response", async (ctx) => {
 		webauthnResp.rawId = base64.toArrayBuffer(webauthnResp.rawId, true);
 		webauthnResp.response.attestationObject = base64.toArrayBuffer(webauthnResp.response.attestationObject, true);
 		const result = await f2l.attestation(webauthnResp, config.origin, ctx.session.challenge);
+
+		let scrivibile = new Uint8Array(result.authnrData.get("credId"));
         
 		const token = {
-			credId: result.authnrData.get("credId"),
+			//credId: result.authnrData.get("credId"),
+			credId: scrivibile,
 			publicKey: result.authnrData.get("credentialPublicKeyPem"),
 			type: webauthnResp.type,
 			counter: result.authnrData.get("counter"),
 			created: new Date().getTime()
 		};
 
-		database.users[ctx.session.username].authenticators.push(token);
-		database.users[ctx.session.username].registered = true;
+		//database.users[ctx.session.username].authenticators.push(token);
+		database.push("/users/" + ctx.session.username + "/authenticators[]", token);
+
+		//database.users[ctx.session.username].registered = true;
+		database.push("/users/" + ctx.session.username + "/registered", true);
 
 		ctx.session.loggedIn = true;
 
@@ -181,11 +226,19 @@ router.post("/response", async (ctx) => {
 		// get response back from client (clientAssertionResponse)
 		webauthnResp.rawId = base64.toArrayBuffer(webauthnResp.rawId, true);
 		webauthnResp.response.userHandle = base64.toArrayBuffer(webauthnResp.rawId, true);
-		let validAuthenticators = database.users[ctx.session.username].authenticators,
+		//let validAuthenticators = database.users[ctx.session.username].authenticators,
+		let validAuthenticators = database.getData("/users/" + ctx.session.username + "/authenticators"),
 			winningAuthenticator;            
 		for(let authrIdx in validAuthenticators) {
 			let authr = validAuthenticators[authrIdx];
 			try {
+
+				let scrivibile = authr.credId;
+				let non_scrivibile = new ArrayBuffer(32);
+				let longInt8View = new Uint8Array(non_scrivibile);
+				for (var i=0; i< longInt8View.length; i++) {
+					longInt8View[i] = scrivibile[i];
+		  		}
 
 				let assertionExpectations = {
 					// Remove the following comment if allowCredentials has been added into authnOptions so the credential received will be validate against allowCredentials array.
@@ -195,7 +248,8 @@ router.post("/response", async (ctx) => {
 					factor: "either",
 					publicKey: authr.publicKey,
 					prevCounter: authr.counter,
-					userHandle: authr.credId
+					//userHandle: authr.credId
+					userHandle: non_scrivibile
 				};
 
 				let result = await f2l.assertion(webauthnResp, assertionExpectations);
@@ -211,7 +265,8 @@ router.post("/response", async (ctx) => {
 			}
 		}
 		// authentication complete!
-		if (winningAuthenticator && database.users[ctx.session.username].registered ) {
+		//if (winningAuthenticator && database.users[ctx.session.username].registered ) {
+		if (winningAuthenticator && database.getData("/users/" + ctx.session.username + "/registered") ) {
 			ctx.session.loggedIn = true;
 			return ctx.body = { "status": "ok" };
 
