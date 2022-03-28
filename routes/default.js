@@ -58,11 +58,4 @@ router.get("/personalInfo", (request, response) => {
 	}
 });
 
-router.get("/users", (request, response) => {
-	let usersArray = database.getData("/users");
-	let users=Object.keys(usersArray);
-	let myReponse = {"status": "ok", "users": users};
-	response.json(myReponse);
-});
-
 module.exports = router;

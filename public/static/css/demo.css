@@ -1,11 +1,16 @@
 #mainContainer {
     display: none;
 }
-#mioDivT{
-    color: yellow;
+#background {
+    width: 100vw;
+    height: 100vh;
+    position: fixed;
+    top: 0px;
+    left: 0px;
+    z-index: -1;
 }
-#mioDivU{
-    color: aqua;
+#content {
+    background: rgba(0,0,0,128);
 }
 .left-column {
     width: 60%;
