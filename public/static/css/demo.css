@@ -1,12 +1,6 @@
 #mainContainer {
     display: none;
 }
-#mioDivT{
-    color: yellow;
-}
-#mioDivU{
-    color: aqua;
-}
 #background {
     width: 100vw;
     height: 100vh;
