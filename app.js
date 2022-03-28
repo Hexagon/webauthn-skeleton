@@ -10,7 +10,6 @@ const
 	defaultroutes 	= require("./routes/default"),
 	webuathnroutes  = require("./routes/webauthn"),
 	tokenroutes   	= require("./routes/token"),
-//	database  		= require("./utils/db"),
 
 	app           	= express();
 

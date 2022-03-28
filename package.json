@@ -1,6 +1,6 @@
 {
   "name": "webauthn-skeleton",
-  "version": "0.9.3",
+  "version": "0.9.5",
   "description": "Skeleton for a Node.js powered Web Authentication API enabled website",
   "main": "app.js",
   "scripts": {

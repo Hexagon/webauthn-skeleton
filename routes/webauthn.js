@@ -3,7 +3,7 @@ const Fido2     = require("../utils/fido2");
 const config    = require("../config");
 const crypto    = require("crypto");
 const router    = express.Router();
-const database  = require("../utils/db");
+const database  = require("../db/db");
 const username  = require("../utils/username");
 const userNameMaxLenght = 25;
 //const util 		= require('util');
@@ -20,11 +20,11 @@ let f2l = new Fido2(config.rpId, config.rpName, undefined, config.challengeTimeo
 let randomBase64URLBuffer = (len) => {
 	len = len || 32;
 	let buff = crypto.randomBytes(len);
-	return base64.fromArrayBuffer(buff, true);
+	return base64url.fromArrayBuffer(buff, true);
 };
 
 router.post("/register", async (request, response) => {
-	//console.log("register");
+
 	if(!request.body || !request.body.username || !request.body.name) {
 		response.json({
 			"status": "failed",
@@ -52,20 +52,16 @@ router.post("/register", async (request, response) => {
 	}
 
 	let db = database.getData("/");
-	//if(database.users[usernameClean] && database.users[usernameClean].registered) {
 
 	if(db.users[usernameClean] && db.users[usernameClean].registered) {
 		response.json({
 			"status": "failed",
 			"message": `Username ${usernameClean} already exists`
-		};
+		});
 	}
-	//console.log("usernameClean " + usernameClean);
-	//console.log("db.users[usernameClean] " + db.users[usernameClean].name);
 
 	let id = randomBase64URLBuffer();
 
-	//database.users[usernameClean] = {
 	database.push("/users",
 		{ 
 			[usernameClean]: {
@@ -118,8 +114,8 @@ router.post("/add", async (request, response) => {
 	request.session.challenge = challengeMakeCred.challenge;
 
 	// Exclude existing credentials
-	//challengeMakeCred.excludeCredentials = database.users[request.session.username].authenticators.map((e) => { return { id: base64url.encode(e.credId, true), type: e.type }; });
-	//challengeMakeCred.excludeCredentials = database.getData("/users/" + request.session.username + "/authenticators").map((e) => { return { id: base64url.encode(e.credId, true), type: e.type }; });
+	//challengeMakeCred.excludeCredentials = database.users[request.session.username].authenticators.map((e) => { return { id: base64url.fromArrayBuffer(e.credId, true), type: e.type }; });
+	//challengeMakeCred.excludeCredentials = database.getData("/users/" + request.session.username + "/authenticators").map((e) => { return { id: base64url.fromArrayBuffer(e.credId, true), type: e.type }; });
 	challengeMakeCred.excludeCredentials = database.getData("/users/" + request.session.username + "/authenticators").map((e) => { 
 		var scrivibile = e.credId;
 		var non_scrivibile = new ArrayBuffer(32);
@@ -128,8 +124,8 @@ router.post("/add", async (request, response) => {
 			longInt8View[i] = scrivibile[i];
 		}
 		//console.log(non_scrivibile);
-		//return { id: base64url.encode(e.credId, true), type: e.type };
-		return { id: base64url.encode(non_scrivibile, true), type: e.type };
+		//return { id: base64url.fromArrayBuffer(e.credId, true), type: e.type };
+		return { id: base64url.fromArrayBuffer(non_scrivibile, true), type: e.type };
 	});
 	// Respond with credentials
 	response.json(challengeMakeCred);
@@ -179,7 +175,7 @@ router.post("/login", async (request, response) => {
 		}
 		allowCredentials.push({
 			type: authr.type,
-			id: base64url.encode(non_scrivibile, true),
+			id: base64url.fromArrayBuffer(non_scrivibile, true),
 			transports: ["usb", "nfc", "ble", "internal"]
 		});
 	}
@@ -207,46 +203,24 @@ router.post("/response", async (request, response) => {
 	let webauthnResp = request.body;
 	if(webauthnResp.response.attestationObject !== undefined) {
 		/* This is create cred */
-		webauthnResp.rawId = base64url.decode(webauthnResp.rawId, true);
-		webauthnResp.response.attestationObject = base64url.decode(webauthnResp.response.attestationObject, true);
+		webauthnResp.rawId = base64url.toArrayBuffer(webauthnResp.rawId, true);
+		webauthnResp.response.attestationObject = base64url.toArrayBuffer(webauthnResp.response.attestationObject, true);
 		const result = await f2l.attestation(webauthnResp, config.origin, request.session.challenge);
         
-		//console.log(result.authnrData.get("credId"));
 		var scrivibile = new Uint8Array(result.authnrData.get("credId"));
-		//console.log(scrivibile);
 		const token = {
-			//credId: result.authnrData.get("credId"),
 			credId: scrivibile,
 			publicKey: result.authnrData.get("credentialPublicKeyPem"),
 			type: webauthnResp.type,
 			counter: result.authnrData.get("counter"),
 			created: new Date().getTime()
 		};
-		//console.log(result.authnrData.get("credId"));
-		//console.log(JSON.parse(String.fromCharCode.apply(null, result.authnrData.get("credId"))));
 
-		//database.users[request.session.username].authenticators.push(token);
 		database.push("/users/" + request.session.username + "/authenticators[]", token);
-		//database.users[request.session.username].registered = true;
 		database.push("/users/" + request.session.username + "/registered", true);
 		request.session.loggedIn = true;
 
-		//console.log(database.getData("/users/" + request.session.username + "/authenticators[0]/credId"));
-		//console.log(database.getData("/users/" + request.session.username + "/authenticators[0]/credId").byteLength);
-		//console.log(database.getData("/users/" + request.session.username + "/authenticators[0]/credId[0]"));
-		//pippo = database.getData("/users/" + request.session.username + "/authenticators[0]");
-		//console.log(Buffer.from(database.getData("/users/" + request.session.username + "/authenticators[0]/credId").toString('base64')));
-		//scrivibile = new Uint8Array(database.getData("/users/" + request.session.username + "/authenticators[0]/credId"));
-		
-		//console.log(scrivibile);
-		var non_scrivibile = new ArrayBuffer(32);
-		var longInt8View = new Uint8Array(non_scrivibile);
-		for (var i=0; i< longInt8View.length; i++) {
-			longInt8View[i] = scrivibile[i];
-		}
-		//console.log(non_scrivibile);
 		return response.json({ "status": "ok" });
-
 
 	} else if(webauthnResp.response.authenticatorData !== undefined) {
 		/* This is get assertion */
@@ -255,8 +229,8 @@ router.post("/response", async (request, response) => {
 		// save the challenge in the session information...
 		// send authnOptions to client and pass them in to `navigator.credentials.get()`...
 		// get response back from client (clientAssertionResponse)
-		webauthnResp.rawId = base64url.decode(webauthnResp.rawId, true);
-		webauthnResp.response.userHandle = base64url.decode(webauthnResp.rawId, true);
+		webauthnResp.rawId = base64url.toArrayBuffer(webauthnResp.rawId, true);
+		webauthnResp.response.userHandle = base64url.toArrayBuffer(webauthnResp.rawId, true);
 
 		//let validAuthenticators = database.users[request.session.username].authenticators,
 		let validAuthenticators = database.getData("/users/" + request.session.username + "/authenticators"),
@@ -270,7 +244,6 @@ router.post("/response", async (request, response) => {
 				for (var i=0; i< longInt8View.length; i++) {
 					longInt8View[i] = scrivibile[i];
 		  		}
-				//console.log(non_scrivibile);
 
 				let assertionExpectations = {
 					// Remove the following comment if allowCredentials has been added into authnOptions so the credential received will be validate against allowCredentials array.
@@ -280,7 +253,6 @@ router.post("/response", async (request, response) => {
 					factor: "either",
 					publicKey: authr.publicKey,
 					prevCounter: authr.counter,
-					//userHandle: authr.credId
 					userHandle: non_scrivibile
 				};
 

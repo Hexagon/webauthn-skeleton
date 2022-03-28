@@ -1,6 +1,5 @@
 const JsonDB = require('node-json-db').JsonDB
 const Config = require('node-json-db/dist/lib/JsonDBConfig').Config
-const crypto = require("crypto")
 
 const database = new JsonDB(new Config("myDataBase", true, false, '/'));
 
@@ -17,16 +16,17 @@ try {
 
 /*
 let database = {
-    users: {
-        /* username: {
+	users: {
+		/* username: {
             'name': name,
             'registered': false,
             'id': id,
             'authenticators': [],
             'oneTimeToken': undefined,
             'recoveryEmail': undefined
-        } */
-/*    }
+        } *//*
+	}
 };
 */
+
 module.exports = database;
