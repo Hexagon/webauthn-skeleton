@@ -2,6 +2,8 @@
 
 This is a working skeleton of a Node.js/Koa application with passwordless login (Web Authentication API, WebAuthN, FIDO2).
 
+There is also an Express-based version available at the [server/express](https://github.com/Hexagon/webauthn-skeleton/tree/server/express) branch.
+
 Live at [https://56k.guru/webauthn](https://56k.guru/webauthn)
 
 Tested with Windows Hello, Yubikey or Android lockscreen, more to come.
