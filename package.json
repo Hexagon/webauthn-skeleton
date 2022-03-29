@@ -34,10 +34,10 @@
     "body-parser": "^1.19.1",
     "cookie-session": "^2.0.0",
     "express": "^4.15.4",
-    "fido2-lib": "^2.6.8",
-    "node-json-db": "^1.4.1"
+    "fido2-lib": "^2.8.2",
+    "node-json-db": "^1.5.0"
   },
   "devDependencies": {
-    "eslint": "^8.4.1"
+    "eslint": "^8.12.0"
   }
 }
