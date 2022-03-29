@@ -73,7 +73,7 @@ router.post("/register", async (request, response) => {
 			}}, false);
 
 	let challengeMakeCred = await f2l.registration(usernameClean, name, id);
-    
+
 	// Transfer challenge and username to session
 	request.session.challenge = challengeMakeCred.challenge;
 	request.session.username  = usernameClean;
@@ -108,7 +108,7 @@ router.post("/add", async (request, response) => {
 		id = database.getData("/users/" + request.session.username + "/id");
 
 	let challengeMakeCred = await f2l.registration(usernameClean, name, id);
-    
+
 	// Transfer challenge to session
 	request.session.challenge = challengeMakeCred.challenge;
 
@@ -165,8 +165,13 @@ router.post("/login", async (request, response) => {
 	for(let authr of database.getData("/users/" + request.session.username + "/authenticators")) {
 		allowCredentials.push({
 			type: authr.type,
+<<<<<<< HEAD
 			id: base64url.fromArrayBuffer(authr.credId, true),
 			transports: ["usb", "nfc", "ble", "internal"]
+=======
+			id: base64.fromArrayBuffer(authr.credId, true),
+			transports: authr.transports
+>>>>>>> 35ec6f8 (Only use actual transports)
 		});
 	}
 
@@ -200,8 +205,9 @@ router.post("/response", async (request, response) => {
 			credId: result.authnrData.get("credId"),
 			publicKey: result.authnrData.get("credentialPublicKeyPem"),
 			type: webauthnResp.type,
+			transports: webauthnResp.transports,
 			counter: result.authnrData.get("counter"),
-			created: new Date().getTime()
+			created: new Date().getTime(),
 		};
 
 		database.push("/users/" + request.session.username + "/authenticators[]", token);
