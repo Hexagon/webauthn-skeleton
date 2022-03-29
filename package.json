@@ -34,7 +34,7 @@
   "dependencies": {
     "@hexagon/base64": "^1.0.11",
     "@koa/router": "^10.1.1",
-    "fido2-lib": "^2.7.1",
+    "fido2-lib": "^2.8.2",
     "koa": "^2.13.4",
     "koa-bodyparser": "^4.3.0",
     "koa-session": "^6.2.0",
@@ -42,6 +42,6 @@
     "node-json-db": "^1.5.0"
   },
   "devDependencies": {
-    "eslint": "^8.4.1"
+    "eslint": "^8.12.0"
   }
 }
