@@ -73,7 +73,7 @@ router.post("/register", async (ctx) => {
 	}}, false);
 
 	let challengeMakeCred = await f2l.registration(usernameClean, name, id);
-    
+
 	// Transfer challenge and username to session
 	ctx.session.challenge = challengeMakeCred.challenge;
 	ctx.session.username  = usernameClean;
@@ -104,7 +104,7 @@ router.post("/add", async (ctx) => {
 		id = database.getData("/users/" + ctx.session.username + "/id");
 
 	let challengeMakeCred = await f2l.registration(usernameClean, name, id);
-    
+
 	// Transfer challenge to session
 	ctx.session.challenge = challengeMakeCred.challenge;
 
@@ -150,9 +150,8 @@ router.post("/login", async (ctx) => {
 	for(let authr of database.getData("/users/" + ctx.session.username + "/authenticators")) {
 		allowCredentials.push({
 			type: authr.type,
-			//id: base64.fromArrayBuffer(authr.credId, true),
 			id: base64.fromArrayBuffer(authr.credId, true),
-			transports: ["usb", "nfc", "ble", "internal"]
+			transports: authr.transports
 		});
 	}
 
@@ -183,8 +182,9 @@ router.post("/response", async (ctx) => {
 			credId: result.authnrData.get("credId"),
 			publicKey: result.authnrData.get("credentialPublicKeyPem"),
 			type: webauthnResp.type,
+			transports: webauthnResp.transports,
 			counter: result.authnrData.get("counter"),
-			created: new Date().getTime()
+			created: new Date().getTime(),
 		};
 
 		database.push("/users/" + ctx.session.username + "/authenticators[]", token);
