@@ -6,7 +6,6 @@ const router    = express.Router();
 const database  = require("../db/db");
 const username  = require("../utils/username");
 const userNameMaxLenght = 25;
-//const util 		= require('util');
 
 const base64url = require("@hexagon/base64");
 
@@ -163,19 +162,10 @@ router.post("/login", async (request, response) => {
 	// Pass this, to limit selectable credentials for user... This may be set in response instead, so that
 	// all of a users server (public) credentials isn't exposed to anyone
 	let allowCredentials = [];
-	//for(let authr of database.users[request.session.username].authenticators) {
 	for(let authr of database.getData("/users/" + request.session.username + "/authenticators")) {
-		var scrivibile = authr.credId;
-		//console.log("authr");
-		//console.log(authr);
-		var non_scrivibile = new ArrayBuffer(32);
-		var longInt8View = new Uint8Array(non_scrivibile);
-		for (var i=0; i< longInt8View.length; i++) {
-			longInt8View[i] = scrivibile[i];
-		}
 		allowCredentials.push({
 			type: authr.type,
-			id: base64url.fromArrayBuffer(non_scrivibile, true),
+			id: base64url.fromArrayBuffer(authr.credId, true),
 			transports: ["usb", "nfc", "ble", "internal"]
 		});
 	}
@@ -185,7 +175,6 @@ router.post("/login", async (request, response) => {
 	request.session.allowCredentials = allowCredentials;
 
 	response.json(assertionOptions);
-	//console.log(allowCredentials);
 
 });
 
@@ -207,9 +196,8 @@ router.post("/response", async (request, response) => {
 		webauthnResp.response.attestationObject = base64url.toArrayBuffer(webauthnResp.response.attestationObject, true);
 		const result = await f2l.attestation(webauthnResp, config.origin, request.session.challenge);
         
-		var scrivibile = new Uint8Array(result.authnrData.get("credId"));
 		const token = {
-			credId: scrivibile,
+			credId: result.authnrData.get("credId"),
 			publicKey: result.authnrData.get("credentialPublicKeyPem"),
 			type: webauthnResp.type,
 			counter: result.authnrData.get("counter"),
@@ -232,18 +220,11 @@ router.post("/response", async (request, response) => {
 		webauthnResp.rawId = base64url.toArrayBuffer(webauthnResp.rawId, true);
 		webauthnResp.response.userHandle = base64url.toArrayBuffer(webauthnResp.rawId, true);
 
-		//let validAuthenticators = database.users[request.session.username].authenticators,
 		let validAuthenticators = database.getData("/users/" + request.session.username + "/authenticators"),
 			winningAuthenticator;            
 		for(let authrIdx in validAuthenticators) {
 			let authr = validAuthenticators[authrIdx];
 			try {
-				var scrivibile = authr.credId;
-				var non_scrivibile = new ArrayBuffer(32);
-				var longInt8View = new Uint8Array(non_scrivibile);
-				for (var i=0; i< longInt8View.length; i++) {
-					longInt8View[i] = scrivibile[i];
-		  		}
 
 				let assertionExpectations = {
 					// Remove the following comment if allowCredentials has been added into authnOptions so the credential received will be validate against allowCredentials array.
@@ -253,7 +234,7 @@ router.post("/response", async (request, response) => {
 					factor: "either",
 					publicKey: authr.publicKey,
 					prevCounter: authr.counter,
-					userHandle: non_scrivibile
+					userHandle: authr.credId
 				};
 
 				let result = await f2l.assertion(webauthnResp, assertionExpectations);
@@ -269,7 +250,6 @@ router.post("/response", async (request, response) => {
 			}
 		}
 		// authentication complete!
-		//if (winningAuthenticator && database.users[request.session.username].registered ) {
 		if (winningAuthenticator && database.getData("/users/" + request.session.username + "/registered") ) {
 			request.session.loggedIn = true;
 			return response.json({ "status": "ok" });
