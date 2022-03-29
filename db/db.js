@@ -10,23 +10,6 @@ try {
     // Since /test1/test does't exist.
     console.error("Created a new db");
     database.push("/users",{});
-    //database.push("/keys", [crypto.randomBytes(32).toString("hex")]);
-    //console.log(database.getData("/keys"));
 };
-
-/*
-let database = {
-	users: {
-		/* username: {
-            'name': name,
-            'registered': false,
-            'id': id,
-            'authenticators': [],
-            'oneTimeToken': undefined,
-            'recoveryEmail': undefined
-        } *//*
-	}
-};
-*/
 
 module.exports = database;

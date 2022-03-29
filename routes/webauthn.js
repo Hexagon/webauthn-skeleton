@@ -109,17 +109,10 @@ router.post("/add", async (ctx) => {
 	ctx.session.challenge = challengeMakeCred.challenge;
 
 	// Exclude existing credentials
-	//challengeMakeCred.excludeCredentials = database.users[ctx.session.username].authenticators.map((e) => { return { id: base64.fromArrayBuffer(e.credId, true), type: e.type }; });
 	challengeMakeCred.excludeCredentials = database.getData("/users/" + ctx.session.username + "/authenticators").map((e) => {
-		let scrivibile = e.credId;
-		let non_scrivibile = new ArrayBuffer(32);
-		let longInt8View = new Uint8Array(non_scrivibile);
-		for (let i=0; i< longInt8View.length; i++) {
-			longInt8View[i] = scrivibile[i];
-		}
-		//return { id: base64url.encode(non_scrivibile, true), type: e.type };
-		return { id: base64.fromArrayBuffer(non_scrivibile, true), type: e.type };
+		return { id: base64.fromArrayBuffer(e.credId, true), type: e.type };
 	});
+
 	// Respond with credentials
 	return ctx.body = challengeMakeCred;
 });
@@ -155,19 +148,10 @@ router.post("/login", async (ctx) => {
 	let allowCredentials = [];
 	//for(let authr of database.users[ctx.session.username].authenticators) {
 	for(let authr of database.getData("/users/" + ctx.session.username + "/authenticators")) {
-		var scrivibile = authr.credId;
-		//console.log("authr");
-		//console.log(authr);
-		var non_scrivibile = new ArrayBuffer(32);
-		var longInt8View = new Uint8Array(non_scrivibile);
-		for (var i=0; i< longInt8View.length; i++) {
-			longInt8View[i] = scrivibile[i];
-		}
-
 		allowCredentials.push({
 			type: authr.type,
 			//id: base64.fromArrayBuffer(authr.credId, true),
-			id: base64.fromArrayBuffer(non_scrivibile, true),
+			id: base64.fromArrayBuffer(authr.credId, true),
 			transports: ["usb", "nfc", "ble", "internal"]
 		});
 	}
@@ -195,18 +179,14 @@ router.post("/response", async (ctx) => {
 		webauthnResp.response.attestationObject = base64.toArrayBuffer(webauthnResp.response.attestationObject, true);
 		const result = await f2l.attestation(webauthnResp, config.origin, ctx.session.challenge);
 
-		let scrivibile = new Uint8Array(result.authnrData.get("credId"));
-        
 		const token = {
-			//credId: result.authnrData.get("credId"),
-			credId: scrivibile,
+			credId: result.authnrData.get("credId"),
 			publicKey: result.authnrData.get("credentialPublicKeyPem"),
 			type: webauthnResp.type,
 			counter: result.authnrData.get("counter"),
 			created: new Date().getTime()
 		};
 
-		//database.users[ctx.session.username].authenticators.push(token);
 		database.push("/users/" + ctx.session.username + "/authenticators[]", token);
 
 		//database.users[ctx.session.username].registered = true;
@@ -232,14 +212,6 @@ router.post("/response", async (ctx) => {
 		for(let authrIdx in validAuthenticators) {
 			let authr = validAuthenticators[authrIdx];
 			try {
-
-				let scrivibile = authr.credId;
-				let non_scrivibile = new ArrayBuffer(32);
-				let longInt8View = new Uint8Array(non_scrivibile);
-				for (var i=0; i< longInt8View.length; i++) {
-					longInt8View[i] = scrivibile[i];
-		  		}
-
 				let assertionExpectations = {
 					// Remove the following comment if allowCredentials has been added into authnOptions so the credential received will be validate against allowCredentials array.
 					allowCredentials: ctx.session.allowCredentials,
@@ -248,8 +220,7 @@ router.post("/response", async (ctx) => {
 					factor: "either",
 					publicKey: authr.publicKey,
 					prevCounter: authr.counter,
-					//userHandle: authr.credId
-					userHandle: non_scrivibile
+					userHandle: authr.credId
 				};
 
 				let result = await f2l.assertion(webauthnResp, assertionExpectations);
