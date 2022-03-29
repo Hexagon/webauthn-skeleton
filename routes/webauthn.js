@@ -7,7 +7,7 @@ const database  = require("../db/db");
 const username  = require("../utils/username");
 const userNameMaxLenght = 25;
 
-const base64url = require("@hexagon/base64");
+const base64 = require("@hexagon/base64");
 
 let f2l = new Fido2(config.rpId, config.rpName, undefined, config.challengeTimeoutMs);
 
@@ -19,7 +19,7 @@ let f2l = new Fido2(config.rpId, config.rpName, undefined, config.challengeTimeo
 let randomBase64URLBuffer = (len) => {
 	len = len || 32;
 	let buff = crypto.randomBytes(len);
-	return base64url.fromArrayBuffer(buff, true);
+	return base64.fromArrayBuffer(buff, true);
 };
 
 router.post("/register", async (request, response) => {
@@ -113,25 +113,14 @@ router.post("/add", async (request, response) => {
 	request.session.challenge = challengeMakeCred.challenge;
 
 	// Exclude existing credentials
-	//challengeMakeCred.excludeCredentials = database.users[request.session.username].authenticators.map((e) => { return { id: base64url.fromArrayBuffer(e.credId, true), type: e.type }; });
-	//challengeMakeCred.excludeCredentials = database.getData("/users/" + request.session.username + "/authenticators").map((e) => { return { id: base64url.fromArrayBuffer(e.credId, true), type: e.type }; });
 	challengeMakeCred.excludeCredentials = database.getData("/users/" + request.session.username + "/authenticators").map((e) => { 
-		var scrivibile = e.credId;
-		var non_scrivibile = new ArrayBuffer(32);
-		var longInt8View = new Uint8Array(non_scrivibile);
-		for (var i=0; i< longInt8View.length; i++) {
-			longInt8View[i] = scrivibile[i];
-		}
-		//console.log(non_scrivibile);
-		//return { id: base64url.fromArrayBuffer(e.credId, true), type: e.type };
-		return { id: base64url.fromArrayBuffer(non_scrivibile, true), type: e.type };
+		return { id: base64.fromArrayBuffer(e.credId, true), type: e.type };
 	});
 	// Respond with credentials
 	response.json(challengeMakeCred);
 });
 
 router.post("/login", async (request, response) => {
-	//console.log("login");
 	if(!request.body || !request.body.username) {
 		response.json({
 			"status": "failed",
@@ -143,7 +132,6 @@ router.post("/login", async (request, response) => {
 
 	let usernameClean = username.clean(request.body.username);
 	let db = database.getData("/");
-	//if(!database.users[usernameClean] || !database.users[usernameClean].registered) {
 	if(!db.users[usernameClean] || !db.users[usernameClean].registered) {
 		response.json({
 			"status": "failed",
@@ -165,13 +153,8 @@ router.post("/login", async (request, response) => {
 	for(let authr of database.getData("/users/" + request.session.username + "/authenticators")) {
 		allowCredentials.push({
 			type: authr.type,
-<<<<<<< HEAD
-			id: base64url.fromArrayBuffer(authr.credId, true),
-			transports: ["usb", "nfc", "ble", "internal"]
-=======
 			id: base64.fromArrayBuffer(authr.credId, true),
 			transports: authr.transports
->>>>>>> 35ec6f8 (Only use actual transports)
 		});
 	}
 
@@ -197,8 +180,8 @@ router.post("/response", async (request, response) => {
 	let webauthnResp = request.body;
 	if(webauthnResp.response.attestationObject !== undefined) {
 		/* This is create cred */
-		webauthnResp.rawId = base64url.toArrayBuffer(webauthnResp.rawId, true);
-		webauthnResp.response.attestationObject = base64url.toArrayBuffer(webauthnResp.response.attestationObject, true);
+		webauthnResp.rawId = base64.toArrayBuffer(webauthnResp.rawId, true);
+		webauthnResp.response.attestationObject = base64.toArrayBuffer(webauthnResp.response.attestationObject, true);
 		const result = await f2l.attestation(webauthnResp, config.origin, request.session.challenge);
         
 		const token = {
@@ -223,8 +206,8 @@ router.post("/response", async (request, response) => {
 		// save the challenge in the session information...
 		// send authnOptions to client and pass them in to `navigator.credentials.get()`...
 		// get response back from client (clientAssertionResponse)
-		webauthnResp.rawId = base64url.toArrayBuffer(webauthnResp.rawId, true);
-		webauthnResp.response.userHandle = base64url.toArrayBuffer(webauthnResp.rawId, true);
+		webauthnResp.rawId = base64.toArrayBuffer(webauthnResp.rawId, true);
+		webauthnResp.response.userHandle = base64.toArrayBuffer(webauthnResp.rawId, true);
 
 		let validAuthenticators = database.getData("/users/" + request.session.username + "/authenticators"),
 			winningAuthenticator;            
@@ -233,7 +216,6 @@ router.post("/response", async (request, response) => {
 			try {
 
 				let assertionExpectations = {
-					// Remove the following comment if allowCredentials has been added into authnOptions so the credential received will be validate against allowCredentials array.
 					allowCredentials: request.session.allowCredentials,
 					challenge: request.session.challenge,
 					origin: config.origin,
