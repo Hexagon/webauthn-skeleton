@@ -1,8 +1,8 @@
 # webauthn-skeleton
 
-## Modified vesion with persistent data on file.
+This is a working skeleton of a Node.js/Express application with passwordless login (Web Authentication API, WebAuthN, FIDO2). 
 
-This is a working skeleton of a Node.js/Express application with passwordless login (Web Authentication API, WebAuthN, FIDO2).
+There is also a Koa-version available at the [main](https://github.com/Hexagon/webauthn-skeleton/tree/main) branch.
 
 Live at [https://56k.guru/webauthn](https://56k.guru/webauthn)
 
