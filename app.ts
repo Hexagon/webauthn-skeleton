@@ -1,11 +1,26 @@
-const
-	express       	= require("express"),
-	bodyParser    	= require("body-parser"),
-	cookieSession 	= require("cookie-session"),
-	path          	= require("path"),
-	crypto        	= require("crypto"),
+import { opine, json, serveStatic, OpineSession } from "./deps.ts";
+import { config } from "./config.ts";
+import defaultRoutes from "./routes/default.ts";
 
-	config        	= require("./config"),
+const app = opine();
+
+// Enable sessions
+new OpineSession(app);
+
+// Enable json body parser
+app.use(json());
+app.use(serveStatic("./public/static"));
+
+// Set up routes
+app.use("/", defaultRoutes);
+
+app.listen(
+  parseInt(config.port,10),
+  () => console.log("server has started on http://localhost:"+config.port+" 🚀"),
+);
+
+/*const
+	crypto        	= require("crypto"),
 
 	defaultroutes 	= require("./routes/default"),
 	webuathnroutes  = require("./routes/webauthn"),
@@ -13,8 +28,7 @@ const
 
 	app           	= express();
 
-app.use(bodyParser.json());
-
+	
 // Sessions
 app.use(cookieSession({
 	name: "session",
@@ -24,12 +38,6 @@ app.use(cookieSession({
 	maxAge: config.cookieMaxAge
 }));
 
-//console.log(database.getData("/keys"));
-
-// Static files (./static)
-app.use(express.static(path.join(__dirname, "public/static")));
-
-// Routes
 app.use("/", defaultroutes);
 app.use("/webauthn", webuathnroutes);
 app.use("/token", tokenroutes);
@@ -55,4 +63,4 @@ if (config.mode === "development") {
 
 console.log(`Started app on port ${port}`);
 
-module.exports = app;
+module.exports = app;*/

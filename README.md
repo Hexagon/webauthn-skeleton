@@ -1,6 +1,6 @@
 # webauthn-skeleton
 
-This is a working skeleton of a Node.js/Express application with passwordless login (Web Authentication API, WebAuthN, FIDO2). 
+This is a *WORK IN PROGRESS* skeleton of a Deno/Opine application with passwordless login (Web Authentication API, WebAuthN, FIDO2). 
 
 There is also a Koa-version available at the [main](https://github.com/Hexagon/webauthn-skeleton/tree/main) branch.
 
@@ -12,7 +12,7 @@ Supports adding more than one authentication method to the same account.
 
 Supports transfering account to another device by a time limited one time link or QR-code.
 
-Using express and [fido2-lib](https://www.npmjs.com/package/fido2-lib)
+Using Opine and (ToDo: which fido2-lib)
 
 Note: This is a _heavily_ modified and improved version of [github.com/fido-alliance/webauthn-demo](https://github.com/fido-alliance/webauthn-demo)
 
@@ -20,11 +20,9 @@ Note: This is a _heavily_ modified and improved version of [github.com/fido-alli
 
 First clone this repo, then:
 
-### 1. Install dependencies
+### 0. Install Deno
 
-```npm install```
-
-### 2. Generate self signed certificate and keys (webauthn requires HTTPS)
+### 1. Generate self signed certificate and keys (webauthn requires HTTPS)
 
 **I repeat, you need to generate keys, certificate and serve using https for webauthn to work**
 
@@ -41,28 +39,12 @@ rm csr.pem
 cd ..
 ```
 
-### 3. Start server 
+### 2. Start server 
 
-```node app```
+```deno run --allow-net --allow-env --allow-read ./app.ts```
 
-### 4. Open browser
+or Run -> Run without debugging in VS Code
+
+### 3. Open browser
 
 ```https://localhost:3000```
-
-## Docker development build
-
-```docker build . --tag="hexagon/webauthn-skeleton"```
-
-```
-sudo docker run \
-  -d \
-  --restart=always \
-  -e WAS_ORIGIN="https://localhost:3000" \
-  -e WAS_RPID="localhost" \
-  -e WAS_BASE_URL="https://localhost:3000/" \
-  -e WAS_BASE_URL="https://localhost:3000/orlikethisifservedfromasuburl" \
-  -e WAS_RPNAME="WebAuthN Demo" \
-  -e WAS_MODE="development" \
-  -e WAS_PORT=3000 \
-  --name webauthndemo \
-  hexagon/webauthn-skeleton```
