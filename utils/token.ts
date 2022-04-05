@@ -1,16 +1,21 @@
-const 
-	base64    = require("@hexagon/base64"),
-	username  = require("./username"),
-	crypto    = require("crypto");
+import { base64 } from "../deps.ts";
+import { username } from "./username.ts";
+import { crypto } from "../deps.ts";
+
+interface IToken {
+	username: string;
+	token: ArrayBuffer;
+	expires: number;
+}
 
 // Generate a one time token for logging in on another device
-const validate = (usernameInput, token, tokenValidator) => {
+const validate = (usernameInput: string, token: string, tokenValidator: IToken) => {
   
 	// Try decoding token from base64url
 	let tokenDecoded;
 	try {
 		tokenDecoded = base64.toArrayBuffer(token, true);
-	} catch (e) {
+	} catch (_e) {
 		return false;
 	}
 
@@ -31,7 +36,7 @@ const validate = (usernameInput, token, tokenValidator) => {
 
 };
 
-const generate = (usernameInput, expireMs) => {
+const generate = (usernameInput: string, expireMs: number) => {
 
 	if (!expireMs) {
 		return false;
@@ -41,14 +46,17 @@ const generate = (usernameInput, expireMs) => {
 		return false;
 	}
   
-	let usernameClean = username.clean(usernameInput);
+	const usernameClean = username.clean(usernameInput);
 	if (!usernameClean) {
 		return false;
 	}
 
+	const randomBytes = new Uint8Array(32);
+	crypto.getRandomValues(randomBytes);
+
 	const 
-		token = crypto.randomBytes(32),
-		internal = {
+		token = randomBytes,
+		internal : IToken = {
 			username: usernameClean,
 			token,
 			expires: new Date().getTime() + expireMs
@@ -58,12 +66,15 @@ const generate = (usernameInput, expireMs) => {
 };
 
 // Encode token to base64url format
-const encode = (token) => {
+const encode = (token: ArrayBuffer) => {
 	return base64.fromArrayBuffer(token, true);
 };
 
-module.exports = {
+const token = {
 	encode,
 	generate,
 	validate
 };
+
+export { token };
+export type { IToken };

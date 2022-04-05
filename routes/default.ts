@@ -1,19 +1,14 @@
 import { Router } from "../deps.ts";
-/*import { database } from "../db/db.ts";
-impoty { token } from "../utils/token.ts";*/
+import { database, IUser } from "../db/db.ts";
+import { token } from "../utils/token.ts";
 
 const router = new Router ();
 
-// https://github.com/cmorten/opine/blob/main/.github/API/response.md
-router.get("/testRoute", (_req, res) => {
-	// console.log(req.parsedBody.user)
-    // console.log(req.parsedBody.password)
-	res.send("yeh");
-});
-
 /* Returns if user is logged in */
-/*router.get("/isLoggedIn", (request, response) => {
-	if(!request.session.loggedIn) {
+router.get("/isLoggedIn", async (request, response) => {
+	// @ts-ignore: session exists
+	const loggedIn = await request.session.get("loggedIn");
+	if(!loggedIn) {
 		response.json({
 			"status": "failed"
 		});
@@ -22,29 +17,39 @@ router.get("/testRoute", (_req, res) => {
 			"status": "ok"
 		});
 	}
-});*/
+});
 
-/* Logs user out */
-/*router.get("/logout", (request, response) => {
-	request.session.loggedIn = false;
-	request.session.username = undefined;
+router.get("/logout", async (request, response) => {
 
+	// Get session
+	// @ts-ignore: session exists
+	const session = request.session;
+
+	await session.set("loggedIn",false);
+	await session.set("username",undefined);
 	response.json({
 		"status": "ok"
 	});
-});*/
+});
 
 /* Returns personal info and THE SECRET INFORMATION */
-/*router.get("/personalInfo", (request, response) => {
-	if(!request.session.loggedIn) {
+router.get("/personalInfo", async (request, response) => {
+
+	// Get session
+	// @ts-ignore: session exists
+	const session = request.session;
+
+	const loggedIn = await session.get("loggedIn")
+	if(!loggedIn) {
 		response.json({
 			"status": "failed",
 			"message": "Access denied"
 		});
 	} else {
-		let tokenInfo = undefined,
-			//userInfo = database.users[request.session.username];
-			userInfo = database.getData("/users/"+ request.session.username);
+		const username = await session.get("username");
+		const users = await database.getCollection<IUser>("users");
+		let tokenInfo = undefined;
+		const userInfo = await users.findOne({ userName: username });
 		if (userInfo.oneTimeToken) {            
 			if (userInfo.oneTimeToken.expires > new Date().getTime()) {
 				tokenInfo = { 
@@ -64,6 +69,6 @@ router.get("/testRoute", (_req, res) => {
 			"recoveryEmail": userInfo.recoveryEmail
 		});
 	}
-});*/
+});
 
 export default router;

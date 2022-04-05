@@ -1,5 +1,5 @@
 // Clean username
-module.exports = { clean: function (username) {
+const username = { clean: function (username: string) {
 	try {
 		// Allow only certain characters
 		let usernameClean = username.replace(/[^a-z0-9\-_]/gi,"");
@@ -8,7 +8,9 @@ module.exports = { clean: function (username) {
 		usernameClean = usernameClean.toLowerCase();
 
 		return usernameClean;
-	} catch (e) {
+	} catch (_e) {
 		return;
 	}
 }};
+
+export { username };

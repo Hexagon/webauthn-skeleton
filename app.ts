@@ -1,6 +1,8 @@
 import { opine, json, serveStatic, OpineSession } from "./deps.ts";
 import { config } from "./config.ts";
 import defaultRoutes from "./routes/default.ts";
+import tokenRoutes from "./routes/token.ts";
+import webauthnRoutes from "./routes/webauthn.ts";
 
 const app = opine();
 
@@ -13,7 +15,10 @@ app.use(serveStatic("./public/static"));
 
 // Set up routes
 app.use("/", defaultRoutes);
+app.use("/token", tokenRoutes);
+app.use("/webauthn", webauthnRoutes);
 
+// Start server
 app.listen(
   parseInt(config.port,10),
   () => console.log("server has started on http://localhost:"+config.port+" 🚀"),
@@ -21,13 +26,6 @@ app.listen(
 
 /*const
 	crypto        	= require("crypto"),
-
-	defaultroutes 	= require("./routes/default"),
-	webuathnroutes  = require("./routes/webauthn"),
-	tokenroutes   	= require("./routes/token"),
-
-	app           	= express();
-
 	
 // Sessions
 app.use(cookieSession({
@@ -38,9 +36,6 @@ app.use(cookieSession({
 	maxAge: config.cookieMaxAge
 }));
 
-app.use("/", defaultroutes);
-app.use("/webauthn", webuathnroutes);
-app.use("/token", tokenroutes);
 
 const port = config.port;
 
@@ -59,8 +54,4 @@ if (config.mode === "development") {
 } else {
 	app.listen(port);
 
-}
-
-console.log(`Started app on port ${port}`);
-
-module.exports = app;*/
+}*/
