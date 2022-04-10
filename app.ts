@@ -20,11 +20,11 @@ app.use("/webauthn", webauthnRoutes);
 
 // Start server
 app.listen({ 
-	port: parseInt(config.port,10),
+	port: parseInt(config.port, 10),
 	certFile: "./keys/cert.pem",
 	keyFile: "./keys/key.pem",
 },
-  () => console.log("server has started on http://localhost:"+config.port+" 🚀"),
+  () => console.log("server has started on https://localhost:"+config.port+" 🚀"),
 );
 
 /*const

@@ -28,7 +28,7 @@ First clone this repo, then:
 
 ### 0. Install Deno
 
-### 1. Generate self signed certificate and keys (webauthn requires HTTPS)
+### 1. Generate self signed certificate and keys (webauthn requires HTTPS), and import the cert on your computer
 
 **I repeat, you need to generate keys, certificate and serve using https for webauthn to work**
 
