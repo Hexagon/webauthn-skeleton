@@ -6,7 +6,13 @@ yarn-debug.log*
 yarn-error.log*
 lerna-debug.log*
 
-#Database
+#Data
+myDataBase.json
+data/*
+!data/.gitignore
+db/data/*
+!db/data/.gitignore
+!keys/.gitignore
 myDataBase.json
 
 # Keys
