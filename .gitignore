@@ -9,7 +9,13 @@ lerna-debug.log*
 #VisualStudioCode
 webauthn-skeleton.code-workspace
 
-#Database
+#Data
+myDataBase.json
+data/*
+!data/.gitignore
+db/data/*
+!db/data/.gitignore
+!keys/.gitignore
 myDataBase.json
 
 # Keys
