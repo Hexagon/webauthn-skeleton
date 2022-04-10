@@ -41,7 +41,7 @@ cd ..
 
 ### 2. Start server 
 
-```deno run --allow-net --allow-env --allow-read ./app.ts```
+```deno run --allow-read --allow-net --allow-env --allow-write ./app.ts```
 
 or Run -> Run without debugging in VS Code
 

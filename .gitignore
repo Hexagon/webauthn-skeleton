@@ -10,6 +10,14 @@ lerna-debug.log*
 keys/*
 !keys/placekeyshere.txt
 
+# Data
+data/*
+!data/.gitignore
+db/data/*
+!db/data/.gitignore
+!keys/.gitignore
+myDataBase.json
+
 # Diagnostic reports (https://nodejs.org/api/report.html)
 report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
 

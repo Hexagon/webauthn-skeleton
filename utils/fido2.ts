@@ -1,5 +1,4 @@
-import { Fido2Lib } from "./fido2-lib.js";
-import { base64 } from "../deps.ts";
+import { base64, Webauthn } from "../deps.ts";
 
 interface IAssertionExpectations {
 	allowCredentials: string;
@@ -15,7 +14,7 @@ class Fido2 {
 	f2l: any;
 
 	constructor(rpId : string, rpName : string, rpIcon : string | undefined, timeout: number) {
-		this.f2l = new Fido2Lib({
+		this.f2l = new Webauthn({
 			timeout,
 			rpId,
 			rpName,

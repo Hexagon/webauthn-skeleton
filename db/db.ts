@@ -22,7 +22,7 @@ interface IUser extends Document {
 }   
 
 // https://deno.land/x/filedb@0.0.6
-const database = new FileDB({ rootDir: "./data", isAutosave: true });
+const database = new FileDB({ rootDir: "./db/data", isAutosave: true });
 
 // Example 
 // const users = await database.getCollection<IUser>("users"); // implicitly create and get User collection

@@ -19,8 +19,11 @@ app.use("/token", tokenRoutes);
 app.use("/webauthn", webauthnRoutes);
 
 // Start server
-app.listen(
-  parseInt(config.port,10),
+app.listen({ 
+	port: parseInt(config.port,10),
+	certFile: "./keys/cert.pem",
+	keyFile: "./keys/key.pem",
+},
   () => console.log("server has started on http://localhost:"+config.port+" 🚀"),
 );
 
