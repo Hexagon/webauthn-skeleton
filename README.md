@@ -2,19 +2,25 @@
 
 This is a working skeleton of a Node.js/Koa application with passwordless login (Web Authentication API, WebAuthN, FIDO2).
 
-There is also an Express-based version available at the [server/express](https://github.com/Hexagon/webauthn-skeleton/tree/server/express) branch.
+Main branch version (Koa/@hexagon/webauthn) live at [https://56k.guru/webauthn](https://56k.guru/webauthn)
 
-Live at [https://56k.guru/webauthn](https://56k.guru/webauthn)
+## Features
 
-Tested with Windows Hello, Yubikey or Android lockscreen, more to come.
+*  Tested with Windows Hello, Yubikey or Android lockscreen, more to come.
+*  Supports adding more than one authentication method to the same account.
+*  Supports transfering account to another device by a time limited one time link or QR-code.
 
-Supports adding more than one authentication method to the same account.
+Using Koa and [@hexagon/webauthn](https://github.com/hexagon/webauthn)
 
-Supports transfering account to another device by a time limited one time link or QR-code.
+## Versions
 
-Using Koa and [fido2-lib](https://www.npmjs.com/package/fido2-lib)
+There is multiple versions of this demo available in different branches
 
-Note: This is a _heavily_ modified and improved version of [github.com/fido-alliance/webauthn-demo](https://github.com/fido-alliance/webauthn-demo)
+| Runtime | Server framework | Branch | Webauthn-lib |
+| ------- | ---------------- | ------ | ------------ |
+| Node | Koa | [main](https://github.com/Hexagon/webauthn-skeleton) | [webauthn](https://github.com/hexagon/webauthn) |
+| Node | Express | [server/express](https://github.com/Hexagon/webauthn-skeleton/tree/server/express) | [fido2-lib](https://www.npmjs.com/package/fido2-lib) |
+| Deno | Opine | [server/deno](https://github.com/Hexagon/webauthn-skeleton/tree/server/deno) | [webauthn](https://github.com/hexagon/webauthn) |
 
 ## Getting it running
 
