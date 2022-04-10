@@ -8,9 +8,12 @@ const
 
 	router 	  = require("@koa/router")({ prefix: "/webauthn" }),
 	
-	f2l       = new Fido2(config.rpId, config.rpName, undefined, config.challengeTimeoutMs),
+	f2l       = new Fido2(),
 	
 	userNameMaxLenght = 25;
+
+
+f2l.init(config.rpId, config.rpName, undefined, config.challengeTimeoutMs);
 
 /**
  * Returns base64url encoded buffer of the given length

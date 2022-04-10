@@ -1,10 +1,12 @@
-const 
-	{ Fido2Lib } = require("fido2-lib"),
+const
 	base64       = require("@hexagon/base64");
 
 class Fido2 {
 	constructor(rpId, rpName, rpIcon, timeout) {
-		this.f2l = new Fido2Lib({
+	}
+	async init(rpId, rpName, rpIcon, timeout) {
+		const { Webauthn } = await import("@hexagon/webauthn");
+		this.f2l = new Webauthn({
 			timeout,
 			rpId,
 			rpName,
