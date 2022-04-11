@@ -130,9 +130,8 @@ router.post("/add", async (request, response) => {
 
 	// Exclude existing credentials
 	challengeMakeCred.excludeCredentials = userInfo.authenticators?.map((e) => { 
-		//return { id: base64.fromArrayBuffer(e.credId, true), type: e.type };
 		return { id: e.credId, type: e.type };
-	});
+	}); 
 	// Respond with credentials
 	response.json(challengeMakeCred);
 });
@@ -220,14 +219,14 @@ router.post("/response", async (request, response) => {
 		const result = await f2l.attestation(webauthnResp, config.origin, await session.get("challenge"));
         
 		const token : IAuthenticator = {
-			credId: result.authnrData.get("credId"),
+			credId: base64.fromArrayBuffer(result.authnrData.get("credId"), true),
 			publicKey: result.authnrData.get("credentialPublicKeyPem"),
 			type: webauthnResp.type,
 			transports: webauthnResp.transports,
 			counter: result.authnrData.get("counter"),
 			created: new Date(),
 		};
-
+		
 		const newAuthenticators = userInfo.authenticators ? [...userInfo.authenticators] : [];
 		newAuthenticators.push(token);
 		users.updateOne({userName: usernameClean}, { authenticators: newAuthenticators, registered: true });
@@ -244,7 +243,7 @@ router.post("/response", async (request, response) => {
 		// send authnOptions to client and pass them in to `navigator.credentials.get()`...
 		// get response back from client (clientAssertionResponse)
 		webauthnResp.rawId = base64.toArrayBuffer(webauthnResp.rawId, true);
-		webauthnResp.response.userHandle = base64.toArrayBuffer(webauthnResp.rawId, true);
+		webauthnResp.response.userHandle = webauthnResp.rawId, true;
 
 		let winningAuthenticator;            
 		for(const authrIdx in userInfo.authenticators) {
@@ -259,7 +258,6 @@ router.post("/response", async (request, response) => {
 					prevCounter: authr.counter,
 					userHandle: authr.credId
 				};
-
 				const result = await f2l.assertion(webauthnResp, assertionExpectations);
 
 				winningAuthenticator = result;
@@ -270,7 +268,7 @@ router.post("/response", async (request, response) => {
 				break;
         
 			} catch (_e) {
-				// Ignore
+				console.error(_e);
 			}
 		}
 		// authentication complete!
