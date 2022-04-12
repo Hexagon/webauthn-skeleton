@@ -2,8 +2,7 @@ const
 	base64       = require("@hexagon/base64");
 
 class Fido2 {
-	constructor(rpId, rpName, rpIcon, timeout) {
-	}
+	constructor() {}
 	async init(rpId, rpName, rpIcon, timeout) {
 		const { Webauthn } = await import("@hexagon/webauthn");
 		this.f2l = new Webauthn({
