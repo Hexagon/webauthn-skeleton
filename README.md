@@ -2,7 +2,8 @@
 
 This is a work in progress (but working) skeleton of a Deno/Opine application with passwordless login (Web Authentication API, WebAuthN, FIDO2).
 
-Main branch version (Koa and @hexagon/webauthn) live at [https://56k.guru/webauthn](https://56k.guru/webauthn)
+Node version (Koa and @hexagon/webauthn) live at [https://56k.guru/webauthn](https://56k.guru/webauthn)
+Deno version (Deno, Opine and @hexagon/webauthn) live at [https://56k.guru/webauthn-deno](https://56k.guru/webauthn-deno)
 
 ## Features
 
