@@ -14,7 +14,7 @@ Using Koa and [@hexagon/webauthn](https://github.com/hexagon/webauthn)
 
 ## Versions
 
-There is multiple versions of this demo available in different branches
+There are multiple versions of this demo available in different branches
 
 | Runtime | Server framework | Branch | Webauthn-lib | Live at |
 | ------- | ---------------- | ------ | ------------ | ------- |
