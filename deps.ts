@@ -2,8 +2,14 @@
 export { crypto } from "https://deno.land/std@0.134.0/crypto/mod.ts";
 
 // Deno third-party
-export { opine, json, serveStatic, Router } from "https://deno.land/x/opine@2.1.5/mod.ts";
-import { FileDB, Document } from "https://deno.land/x/filedb@0.0.6/mod.ts"; export { FileDB }; export type { Document};
+import { opine, json, serveStatic, Router, HTTPSOptions, HTTPOptions } from "https://deno.land/x/opine@2.1.5/mod.ts"; 
+export {opine, json, serveStatic, Router};
+export type { HTTPSOptions, HTTPOptions };
+
+import { FileDB, Document } from "https://deno.land/x/filedb@0.0.6/mod.ts"; 
+export { FileDB }; 
+export type { Document};
+
 export { OpineSession } from "https://deno.land/x/sessions@v1.5.4/mod.ts";
 export { Webauthn } from "https://deno.land/x/webauthn@0.9.6/dist/webauthn.js";
 

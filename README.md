@@ -54,3 +54,21 @@ or Run -> Run without debugging in VS Code
 ### 3. Open browser
 
 ```https://localhost:3000```
+
+## Docker development build
+
+```docker build . --tag="hexagon/webauthn-skeleton-deno"```
+
+```
+sudo docker run \
+  -d \
+  --restart=always \
+  -e WAS_ORIGIN="https://localhost:3000" \
+  -e WAS_RPID="localhost" \
+  -e WAS_BASE_URL="https://localhost:3000/" \
+  -e WAS_BASE_URL="https://localhost:3000/orlikethisifservedfromasuburl" \
+  -e WAS_RPNAME="WebAuthN Demo" \
+  -e WAS_MODE="development" \
+  -e WAS_PORT=3000 \
+  --name webauthndemo-deno \
+  hexagon/webauthn-skeleton-deno```
