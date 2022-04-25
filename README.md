@@ -2,7 +2,8 @@
 
 This is a working skeleton of a Node.js/Koa application with passwordless login (Web Authentication API, WebAuthN, FIDO2).
 
-Main branch version (Koa/@hexagon/webauthn) live at [https://56k.guru/webauthn](https://56k.guru/webauthn)
+Main version (Koa/@hexagon/webauthn) live at [https://56k.guru/webauthn](https://56k.guru/webauthn)
+Deno version (Deno/Opine/@hexagon/webauthn) live at [https://56k.guru/webauthn-deno](https://56k.guru/webauthn-deno)
 
 ## Features
 
