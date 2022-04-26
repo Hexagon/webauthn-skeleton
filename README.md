@@ -48,9 +48,13 @@ cd ..
 
 ### 2. Start server 
 
-```deno run --allow-read --allow-net --allow-env --allow-write ./app.ts```
+Using deno tasks (>=1.21.0)
 
-or Run -> Run without debugging in VS Code
+```deno task start```
+
+Or manually
+
+```deno run --allow-read --allow-net --allow-env --allow-write ./app.ts```
 
 ### 3. Open browser
 
