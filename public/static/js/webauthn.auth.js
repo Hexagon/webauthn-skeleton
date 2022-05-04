@@ -65,7 +65,7 @@ function register (username, additional) {
 			return navigator.credentials.create({ publicKey });
 		})
 		.then((response) => {
-			let transports = response.response.getTransports(),
+			let transports = response.response.getTransports ? response.response.getTransports() : undefined,
 				makeCredResponse = {
 				id: response.id,
 				rawId: base64.fromArrayBuffer(response.rawId,true),
