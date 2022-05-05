@@ -11,7 +11,7 @@ export { FileDB };
 export type { Document};
 
 export { OpineSession } from "https://deno.land/x/sessions@v1.5.4/mod.ts";
-export { Webauthn } from "https://deno.land/x/webauthn@0.9.13/dist/webauthn.js";
+export { Webauthn } from "https://deno.land/x/webauthn@0.9.14/dist/webauthn.js";
 
 // Third party
 export { base64 } from "https://cdn.jsdelivr.net/gh/hexagon/base64@1/src/base64.js";
