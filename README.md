@@ -11,7 +11,7 @@ Deno version (Deno, Opine and @hexagon/webauthn) live at [https://56k.guru/webau
 *  Supports adding more than one authentication method to the same account.
 *  Supports transfering account to another device by a time limited one time link or QR-code.
 
-Using Deno, Opine and [@hexagon/webauthn](https://github.com/hexagon/webauthn)
+Using Deno, Opine and [fido2-lib](https://github.com/webauthn-open-source/fido2-lib)
 
 ## Versions
 
@@ -19,9 +19,9 @@ There are multiple versions of this demo available in different branches
 
 | Runtime | Server framework | Branch | Webauthn-lib | Live at |
 | ------- | ---------------- | ------ | ------------ | ------- |
-| Node | Koa | [main](https://github.com/Hexagon/webauthn-skeleton) | [webauthn](https://github.com/hexagon/webauthn) | [56k.guru/webauthn](https://56k.guru/webauthn) |
+| Node | Koa | [main](https://github.com/Hexagon/webauthn-skeleton) | [fido2-lib](https://www.npmjs.com/package/fido2-lib) | [56k.guru/webauthn](https://56k.guru/webauthn) |
 | Node | Express | [server/express](https://github.com/Hexagon/webauthn-skeleton/tree/server/express) | [fido2-lib](https://www.npmjs.com/package/fido2-lib) | - |
-| Deno | Opine | [server/deno](https://github.com/Hexagon/webauthn-skeleton/tree/server/deno) | [webauthn](https://github.com/hexagon/webauthn) | [56k.guru/webauthn-deno](https://56k.guru/webauthn-deno) |
+| Deno | Opine | [server/deno](https://github.com/Hexagon/webauthn-skeleton/tree/server/deno) | [fido2-lib](https://www.npmjs.com/package/fido2-lib) | [56k.guru/webauthn-deno](https://56k.guru/webauthn-deno) |
 
 ## Getting it running
 
