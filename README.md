@@ -2,7 +2,7 @@
 
 This is a working skeleton of a Node.js/Koa application with passwordless login (Web Authentication API, WebAuthN, FIDO2).
 
-Main version (Koa/@hexagon/webauthn) live at [https://56k.guru/webauthn](https://56k.guru/webauthn)
+Main version (Koa/fido2-lib) live at [https://56k.guru/webauthn](https://56k.guru/webauthn)
 Deno version (Deno/Opine/@hexagon/webauthn) live at [https://56k.guru/webauthn-deno](https://56k.guru/webauthn-deno)
 
 ## Features
@@ -19,7 +19,7 @@ There are multiple versions of this demo available in different branches
 
 | Runtime | Server framework | Branch | Webauthn-lib | Live at |
 | ------- | ---------------- | ------ | ------------ | ------- |
-| Node | Koa | [main](https://github.com/Hexagon/webauthn-skeleton) | [webauthn](https://github.com/hexagon/webauthn) | [56k.guru/webauthn](https://56k.guru/webauthn) |
+| Node | Koa | [main](https://github.com/Hexagon/webauthn-skeleton) | [fido2-lib](https://www.npmjs.com/package/fido2-lib) | [56k.guru/webauthn](https://56k.guru/webauthn) |
 | Node | Express | [server/express](https://github.com/Hexagon/webauthn-skeleton/tree/server/express) | [fido2-lib](https://www.npmjs.com/package/fido2-lib) | - |
 | Deno | Opine | [server/deno](https://github.com/Hexagon/webauthn-skeleton/tree/server/deno) | [webauthn](https://github.com/hexagon/webauthn) | [56k.guru/webauthn-deno](https://56k.guru/webauthn-deno) |
 

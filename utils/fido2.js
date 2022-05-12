@@ -4,8 +4,8 @@ const
 class Fido2 {
 	constructor() {}
 	async init(rpId, rpName, rpIcon, timeout) {
-		const { Webauthn } = await import("@hexagon/webauthn");
-		this.f2l = new Webauthn({
+		const { Fido2Lib } = await import("fido2-lib");
+		this.f2l = new Fido2Lib({
 			timeout,
 			rpId,
 			rpName,
