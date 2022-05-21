@@ -11,7 +11,7 @@ export { FileDB };
 export type { Document};
 
 export { OpineSession } from "https://deno.land/x/sessions@v1.5.4/mod.ts";
-export { Fido2Lib } from "https://cdn.jsdelivr.net/npm/fido2-lib@3.1.0/dist/main.js";
+export { Fido2Lib } from "https://cdn.jsdelivr.net/npm/fido2-lib@3.1.5/dist/main.js";
 
 // Third party
 export { base64 } from "https://cdn.jsdelivr.net/gh/hexagon/base64@1/src/base64.js";
