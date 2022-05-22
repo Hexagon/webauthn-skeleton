@@ -54,7 +54,7 @@ Using deno tasks (>=1.21.0)
 
 Or manually
 
-```deno run --allow-read --allow-net --allow-env --allow-write ./app.ts```
+```deno run --allow-read --allow-net --allow-env --allow-write --lock=lock.json ./app.ts```
 
 ### 3. Open browser
 
