@@ -34,7 +34,7 @@
   "dependencies": {
     "@hexagon/base64": "^1.0.19",
     "@koa/router": "^10.1.1",
-    "fido2-lib": "^3.1.7",
+    "fido2-lib": "3.2",
     "koa": "^2.13.4",
     "koa-bodyparser": "^4.3.0",
     "koa-session": "^6.2.0",
