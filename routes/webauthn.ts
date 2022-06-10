@@ -243,7 +243,7 @@ router.post("/response", async (request, response) => {
 		// send authnOptions to client and pass them in to `navigator.credentials.get()`...
 		// get response back from client (clientAssertionResponse)
 		webauthnResp.rawId = base64.toArrayBuffer(webauthnResp.rawId, true);
-		webauthnResp.response.userHandle = webauthnResp.rawId, true;
+		webauthnResp.response.userHandle = webauthnResp.rawId;
 
 		let winningAuthenticator;            
 		for(const authrIdx in userInfo.authenticators) {
