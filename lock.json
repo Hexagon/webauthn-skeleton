@@ -1,6 +1,6 @@
 {
   "https://cdn.jsdelivr.net/gh/hexagon/base64@1.0.19/src/base64.js": "c2bb9a77934fbd6e7e6aa4ac3d57f4312e1ac8d6328a7b10ea826c6ad1b18ebe",
-  "https://cdn.jsdelivr.net/npm/fido2-lib@3.1.7/dist/main.js": "4a149c20211c6430d5682a23abfe4998d8ac5900b44f3309eacd02b666b3063d",
+  "https://cdn.jsdelivr.net/npm/fido2-lib@3.2.2/dist/main.js": "5b4c21c252d78642b40145785e410abe50dbd610fe693591f2407bdf3fdb864a",
   "https://cdn.skypack.dev/-/call-bind@v1.0.2-aQhc5rw7D717dqak1kKd/dist=es2019,mode=imports/optimized/call-bind/callBound.js": "1c071462cf0f8435ec0128420b848962c98a02bba04b9a66d487c6c2dedc8c75",
   "https://cdn.skypack.dev/-/call-bind@v1.0.2-aQhc5rw7D717dqak1kKd/dist=es2019,mode=imports/optimized/common/index-46ba46fb.js": "375f19372451f01406891804e68e5297427ffd2cc1dc414ba2acc570657633fd",
   "https://cdn.skypack.dev/-/function-bind@v1.1.1-I2U4xSizU1p8sDZSqt3X/dist=es2019,mode=imports/optimized/function-bind.js": "dc4acf0cf579ae4cc3fc41693f0fba305dd435afd17fa8429dc612dec09eba9c",
