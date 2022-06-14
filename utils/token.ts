@@ -1,6 +1,5 @@
 import { base64 } from "../deps.ts";
 import { username } from "./username.ts";
-import { crypto } from "../deps.ts";
 
 interface IToken {
 	username: string;

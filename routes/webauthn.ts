@@ -3,7 +3,6 @@ import { Router } from "../deps.ts";
 import { config } from "../config.ts";
 import { database, IUser, IAuthenticator } from "../db/db.ts";
 import { username } from "../utils/username.ts";
-import { crypto } from "../deps.ts";
 import { base64 } from "../deps.ts";
 import { Fido2, IAssertionExpectations } from "../utils/fido2.ts";
 

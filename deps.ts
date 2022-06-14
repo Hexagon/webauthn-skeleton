@@ -1,6 +1,3 @@
-// Deno std
-export { crypto } from "https://deno.land/std@0.134.0/crypto/mod.ts";
-
 // Deno third-party
 import { opine, json, serveStatic, Router, HTTPSOptions, HTTPOptions } from "https://deno.land/x/opine@2.2.0/mod.ts"; 
 export {opine, json, serveStatic, Router};
@@ -11,7 +8,7 @@ export { FileDB };
 export type { Document};
 
 export { OpineSession } from "https://deno.land/x/sessions@v1.5.4/mod.ts";
-export { Fido2Lib } from "https://cdn.jsdelivr.net/npm/fido2-lib@3.2.2/dist/main.js";
+export { Fido2Lib } from "https://deno.land/x/fido2@3.2.3/dist/main.js";
 
 // Third party
-export { base64 } from "https://cdn.jsdelivr.net/gh/hexagon/base64@1.0.19/src/base64.js";
+export { base64 } from "https://deno.land/x/b64@1.0.19/src/base64.js";
