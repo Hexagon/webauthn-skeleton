@@ -32,9 +32,9 @@
   "homepage": "https://github.com/hexagon/webauthn-skeleton#readme",
   "license": "MIT",
   "dependencies": {
-    "@hexagon/base64": "^1.0.19",
+    "@hexagon/base64": "^1.0.20",
     "@koa/router": "^10.1.1",
-    "fido2-lib": "~3.2.3",
+    "fido2-lib": "~3.2.4",
     "koa": "^2.13.4",
     "koa-bodyparser": "^4.3.0",
     "koa-session": "^6.2.0",
@@ -42,6 +42,6 @@
     "node-json-db": "^1.5.0"
   },
   "devDependencies": {
-    "eslint": "^8.13.0"
+    "eslint": "^8.18.0"
   }
 }
